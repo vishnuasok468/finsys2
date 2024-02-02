@@ -1602,9 +1602,55 @@ def Fin_Attendance(request):
 def Fin_Add_Attendance(request):
     if 's_id' in request.session:
         s_id = request.session['s_id']
-        log = Fin_Login_Details.objects.filter(id = s_id)
-        emp = Employee.objects.filter(employee_status = 'active')
+        log = Fin_Login_Details.objects.get(id = s_id)
+        if log.User_Type == 'Staff':
+            staff =Fin_Staff_Details.objects.get(Login_Id =log)
+            emp = Employee.objects.filter(company = staff.company_id,employee_status = 'active')
+        if log.User_Type == 'Company':
+            com = Fin_Company_Details.objects.get(Login_Id = log)
+            emp = Employee.objects.filter(company = com.id,employee_status = 'active')
+
         context ={
             'emp':emp
         }
         return render(request,'company/Fin_add_attendance.html',context)
+    return redirect('Fin_Attendance')
+
+#from django.http import JsonResponse
+
+def Fin_Holiday_check_for_attendance(request):
+    date = request.POST.get('sdate')
+    if 's_id' in request.session:
+        s_id = request.session['s_id']
+        log = Fin_Login_Details.objects.get(id = s_id)
+        if log.User_Type == 'Staff':
+            staff =Fin_Staff_Details.objects.get(Login_Id =log)
+            exists = Holiday.objects.filter(company = staff.company_id,start_date__lte=date, end_date__gte=date).exists()
+        if log.User_Type == 'Company':
+            com = Fin_Company_Details.objects.get(Login_Id = log)
+            exists = Holiday.objects.filter(company = com.id,start_date__lte=date, end_date__gte=date).exists()
+        return JsonResponse({'exists': exists})
+    
+def Fin_attendance_save(request):
+    if 's_id' in request.session:
+        if request.method == 'POST':
+            s_id = request.session['s_id']
+            emp = request.POST['emp']
+            empid = Employee.objects.get(id = emp)
+            log = Fin_Login_Details.objects.get(id = s_id)
+            if log.User_Type == 'Staff':
+                staff =Fin_Staff_Details.objects.get(Login_Id =log)
+                attendance = Fin_Attendances(employee = empid,start_date= request.POST['sdate'],end_date = request.POST['edate'],status = request.POST['status'],reason = request.POST['reason'],company = staff.company_id,login_id = log)
+                attendance.save()
+                return redirect('Fin_Attendance')
+
+            if log.User_Type == 'Company':
+                com = Fin_Company_Details.objects.get(Login_Id = log)
+                attendance = Fin_Attendances(start_date= request.POST['sdate'],end_date = request.POST['edate'],status = request.POST['status'],reason = request.POST['reason'],company = com.id,login_id = log,employee = empid)
+                attendance.save()
+                return redirect('Fin_Attendance')
+        return redirect('Fin_Add_Attendance')
+    return redirect('Fin_Add_Attendance')
+
+def chumma(request):
+    return render(request,'company/chumma.html')

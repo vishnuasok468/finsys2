@@ -87,6 +87,10 @@ urlpatterns = [
     
     path('Fin_Attendance',views.Fin_Attendance,name='Fin_Attendance'),
     path('Fin_Add_Attendance',views.Fin_Add_Attendance,name='Fin_Add_Attendance'),
+    path('Fin_Holiday_check_for_attendance',views.Fin_Holiday_check_for_attendance,name='Fin_Holiday_check_for_attendance'),
+    path('Fin_attendance_save',views.Fin_attendance_save,name='Fin_attendance_save'),
+
+    path('chumma',views.chumma,name='chumma'),
 
     re_path(r'^static/(?P<path>.*)$', serve,{'document_root': settings.STATIC_ROOT}),
 ]

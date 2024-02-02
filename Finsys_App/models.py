@@ -655,3 +655,12 @@ class Holiday_History(models.Model):
     holiday = models.ForeignKey(Holiday,on_delete=models.CASCADE,blank=True,null=True)
     date = models.DateField(null=True,blank=True)
     action = models.CharField(max_length=255,null=True,blank=True)
+
+class Fin_Attendances(models.Model):
+    start_date = models.DateField()
+    end_date = models.DateField()
+    status = models.CharField(max_length=255)
+    reason = models.CharField(max_length = 255)
+    employee = models.ForeignKey(Employee,on_delete=models.CASCADE)
+    company = models.ForeignKey(Fin_Company_Details,on_delete = models.CASCADE)
+    login_id = models.ForeignKey(Fin_Login_Details,on_delete = models.CASCADE)
