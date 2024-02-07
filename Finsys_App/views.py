@@ -1658,22 +1658,22 @@ def chumma(request):
 
 
 
-def employee_save(request):
+def fin_employee_save_atndnce(request):
 
     if request.method == 'POST':
 
         title = request.POST['Title']
         firstname = request.POST['First_Name'].capitalize()
         lastname = request.POST['Last_Name'].capitalize()
+        image = request.FILES.get('Image', None)
+        if image:
+            image = request.FILES['Image']
+        else:
+            image = ''
         alias = request.POST['Alias']
         joiningdate = request.POST['Joining_Date']
         salarydate = request.POST['Salary_Date']
-        salaryamount = request.POST['Salary_Amount']
-
-        if request.POST['Salary_Amount'] == '':
-            salaryamount = None
-        else:
-            salaryamount = request.POST['Salary_Amount']
+        salary_type = request.POST['Salary_Type']
 
         amountperhour = request.POST['perhour']
         if amountperhour == '' or amountperhour == '0':
@@ -1687,22 +1687,28 @@ def employee_save(request):
         else:
             workinghour = request.POST['workhour']
 
-        salary_type = request.POST['Salary_Type']
-        
+        salaryamount = request.POST['Salary_Amount']
+        if request.POST['Salary_Amount'] == '':
+            salaryamount = None
+        else:
+            salaryamount = request.POST['Salary_Amount']
+
         employeenumber = request.POST['Employee_Number']
         designation = request.POST['Designation']
         location = request.POST['Location']
         gender = request.POST['Gender']
-        image = request.FILES.get('Image', None)
-        if image:
-            image = request.FILES['Image']
-        else:
-            image = ''
-
         dob = request.POST['DOB']
         blood = request.POST['Blood']
+        contact = request.POST['Contact_Number']
+        emergencycontact = request.POST['Emergency_Contact']
+        email = request.POST['Email']
         parent = request.POST['Parent'].capitalize()
         spouse = request.POST['Spouse'].capitalize()
+        file = request.FILES.get('File', None)
+        if file:
+            file = request.FILES['File']
+        else:
+            file=''
         street = request.POST['street']
         city = request.POST['city']
         state = request.POST['state']
@@ -1714,15 +1720,6 @@ def employee_save(request):
         tempPincode = request.POST['tempPincode']
         tempCountry = request.POST['tempCountry']
         
-        
-        contact = request.POST['Contact_Number']
-        emergencycontact = request.POST['Emergency_Contact']
-        email = request.POST['Email']
-        file = request.FILES.get('File', None)
-        if file:
-            file = request.FILES['File']
-        else:
-            file=''
         bankdetails = request.POST['Bank_Details']
         accoutnumber = request.POST['Account_Number']
         ifsc = request.POST['IFSC']
@@ -1751,8 +1748,6 @@ def employee_save(request):
             tdstype = ''
             tdsapplicable = ''
 
-        
-        
         incometax = request.POST['Income_Tax']
         aadhar = request.POST['Aadhar']
         uan = request.POST['UAN']
@@ -1782,52 +1777,52 @@ def employee_save(request):
         
         if Employee.objects.filter(employee_mail=email,mobile = contact,employee_number=employeenumber,company_id = companykey.id).exists():
             messages.error(request,'user exist')
-            return redirect('employee_create_page')
+            return redirect('Fin_Add_Attendance')
         
         elif Employee.objects.filter(mobile = contact,company_id = companykey.id).exists():
             messages.error(request,'phone number exist')
-            return redirect('employee_create_page')
+            return redirect('Fin_Add_Attendance')
         
         elif Employee.objects.filter(emergency_contact = emergencycontact,company_id = companykey.id).exists():
             messages.error(request,'emergency phone number exist')
-            return redirect('employee_create_page')
+            return redirect('Fin_Add_Attendance')
         
         elif Employee.objects.filter(employee_mail=email,company_id = companykey.id).exists():
             messages.error(request,'email exist')
-            return redirect('employee_create_page')
+            return redirect('Fin_Add_Attendance')
         
         elif Employee.objects.filter(employee_number=employeenumber,company_id = companykey.id).exists():
             messages.error(request,'employee id exist')
-            return redirect('employee_create_page')
+            return redirect('Fin_Add_Attendance')
         
         elif incometax != '' and Employee.objects.filter(income_tax_number = incometax,company_id = companykey.id).exists():
             messages.error(request,'Income Tax Number exist')
-            return redirect('employee_create_page')
+            return redirect('Fin_Add_Attendance')
         
         elif pf != '' and Employee.objects.filter(pf_account_number = pf,company_id = companykey.id).exists():
             messages.error(request,'PF account number exist')
-            return redirect('employee_create_page')
+            return redirect('Fin_Add_Attendance')
         
         elif aadhar != '' and Employee.objects.filter(aadhar_number = aadhar,company_id = companykey.id).exists():
             messages.error(request,'Aadhar number exist')
-            return redirect('employee_create_page')
+            return redirect('Fin_Add_Attendance')
         
         elif pan != '' and Employee.objects.filter(pan_number = pan,company_id = companykey.id).exists():
             messages.error(request,'PAN number exist')
-            return redirect('employee_create_page')
+            return redirect('Fin_Add_Attendance')
         
         elif uan != '' and Employee.objects.filter(universal_account_number = uan,company_id = companykey.id).exists():
             messages.error(request,'Universal account number exist')
-            return redirect('employee_create_page')
+            return redirect('Fin_Add_Attendance')
         
         elif pr != '' and Employee.objects.filter(pr_account_number = pr,company_id = companykey.id).exists():
             messages.error(request,'PR account number exist')
-            return redirect('employee_create_page')
+            return redirect('Fin_Add_Attendance')
         
         elif bankdetails.lower() == 'yes':
             if accoutnumber != '' and Employee.objects.filter(account_number=accoutnumber,company_id = companykey.id).exists():
                 messages.error(request,'Bank account number already exist')
-                return redirect('employee_create_page')
+                return redirect('Fin_Add_Attendance')
             
             else:
                 if employee.User_Type == 'Company':
@@ -1928,4 +1923,4 @@ def employee_save(request):
             com = Fin_Staff_Details.objects.get(Login_Id = sid)
             allmodules = Fin_Modules_List.objects.get(company_id = com.company_id_id)
             employee = Employee.objects.filter(company_id=com.company_id_id)
-        return render(request,'company/Employee_List.html',{'allmodules':allmodules,'employee':employee,'com':com,'data':loginn})
+        return redirect('Fin_Add_Attendance')

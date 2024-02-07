@@ -118,7 +118,7 @@
     <div class="modal-dialog modal-xl">
         <div class="modal-content" style="background-color: #213b52;">
             <div class="modal-header">
-                <h3 class="m-3">ADD CUSTOMER</h3>
+                <h3 class="m-3">ADD EMPLOYEE</h3>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -126,7 +126,7 @@
             <div class="modal-body">
 
                 <form action="" method="POST" autocomplete="off" id="modalCustomer">
-                    {% csrf_token %}
+
 
                     <div class="row">
                         <div class="col-md-6">
@@ -134,7 +134,7 @@
                                 <div class="form-group">
                                     <td><Label>Title</Label></td>
                                     <td>
-                                        <select name="Title" class="form-control" required>
+                                        <select class="form-control" required id="title">
                                             <option value="">--select--</option>
                                             <option value="Mr">Mr</option>
                                             <option value="Mrs">Mrs</option>
@@ -147,16 +147,14 @@
                             <tr>
                                 <div class="form-group">
                                     <td><Label>First Name</Label></td>
-                                    <td><input placeholder="First Name" name="First_Name" type="text"
-                                            class="form-control">
+                                    <td><input placeholder="First Name" id="firstname" type="text" class="form-control">
                                     </td>
                                 </div>
                             </tr>
                             <tr>
                                 <div class="form-group">
                                     <td><Label>Last Name</Label></td>
-                                    <td><input placeholder="Last Name" name="Last_Name" type="text"
-                                            class="form-control">
+                                    <td><input placeholder="Last Name" id="lastname" type="text" class="form-control">
                                     </td>
                                 </div>
                             </tr>
@@ -166,7 +164,7 @@
                             <label for="Image" class="ml-5 mt-5"
                                 style="cursor:pointer; padding: 20% 35%; background-image: url('static/assets/images/upload.png'); background-repeat: no-repeat; background-size: contain;"></label>
                             <br> <span class="ml-5">Upload Image</span>
-                            <input type="file" name="Image" id="Image" accept="image/*" style="display: none;">
+                            <input type="file" id="image" accept="image/*" style="display: none;">
                         </div>
 
                     </div> <br>
@@ -175,15 +173,15 @@
                             <tr>
                                 <div class="form-group">
                                     <td><Label>Alias (optional)</Label></td>
-                                    <td><input placeholder="Alias" name="Alias" type="text" class="form-control"></td>
+                                    <td><input placeholder="Alias" id="alias" type="text" class="form-control"></td>
                                 </div>
                             </tr>
 
                             <tr>
                                 <div class="form-group">
                                     <td><Label>Date of Joining</Label></td>
-                                    <td><input placeholder="Joining Date" required name="Joining_Date" id="JoiningDate"
-                                            type="date" class="form-control"></td>
+                                    <td><input placeholder="Joining Date" required id="JoiningDate" type="date"
+                                            class="form-control"></td>
                                 </div>
                             </tr>
                         </div>
@@ -192,7 +190,7 @@
                                 <div class="form-group">
                                     <td><Label>Salary Date</Label></td>
                                     <td>
-                                        <select class="form-control" name="Salary_Date" id="">
+                                        <select class="form-control" id="Salary_Date">
                                             <option value="">--select--</option>
                                             <option value="1-10">1-10</option>
                                             <option value="11-15">11-15</option>
@@ -205,7 +203,7 @@
                                 <div class="form-group">
                                     <td><Label>Define salary details</Label></td>
                                     <td>
-                                        <select class="form-control" name="Salary_Type" id="salary_type">
+                                        <select class="form-control" id="salary_type">
                                             <option value="">--select--</option>
                                             <option value="Fixed">Fixed</option>
                                             <option value="Temporary">Temporary</option>
@@ -219,17 +217,15 @@
                                 <tr>
                                     <div class="form-group">
                                         <td><Label>Amount Per Hour</Label></td>
-                                        <td><input placeholder="Amount Per Hour" name="perhour"
-                                                oninput="calculateAndSetSalary()" id="amount_perhour" type="number"
-                                                class="form-control"></td>
+                                        <td><input placeholder="Amount Per Hour" oninput="calculateAndSetSalary()"
+                                                id="amount_perhour" type="number" class="form-control"></td>
                                     </div>
                                 </tr>
                                 <tr>
                                     <div class="form-group">
                                         <td><Label>Total Working Hour(s)</Label></td>
-                                        <td><input placeholder="Total Working Hour(s)" name="workhour"
-                                                oninput="calculateAndSetSalary()" id="working_hours" type="number"
-                                                class="form-control"></td>
+                                        <td><input placeholder="Total Working Hour(s)" oninput="calculateAndSetSalary()"
+                                                id="working_hours" type="number" class="form-control"></td>
                                     </div>
                                 </tr>
 
@@ -237,8 +233,8 @@
                             <tr>
                                 <div class="form-group" id="salary_amount">
                                     <td><Label>Salary Amount</Label></td>
-                                    <td><input placeholder="Salary Amount" name="Salary_Amount" id="salary_amount2"
-                                            type="text" class="form-control"></td>
+                                    <td><input placeholder="Salary Amount" id="salary_amount2" type="text"
+                                            class="form-control"></td>
                                 </div>
                             </tr>
                         </div>
@@ -257,22 +253,21 @@
                         <tr>
                             <div class="form-group col">
                                 <td><Label>Employee Number</Label></td>
-                                <td><input placeholder="Employee Number" required name="Employee_Number" type="text"
+                                <td><input placeholder="Employee Number" required id="Employee_Number" type="text"
                                         class="form-control"></td>
                             </div>
                         </tr>
                         <tr>
                             <div class="form-group col">
                                 <td><Label>Designation</Label></td>
-                                <td><input placeholder="Designation" name="Designation" type="text"
-                                        class="form-control">
+                                <td><input placeholder="Designation" id="Designation" type="text" class="form-control">
                                 </td>
                             </div>
                         </tr>
                         <tr>
                             <div class="form-group col">
                                 <td><Label>Location</Label></td>
-                                <td><input placeholder="Current Location" name="Location" type="text"
+                                <td><input placeholder="Current Location" id="Location" type="text"
                                         class="form-control">
                                 </td>
                             </div>
@@ -282,7 +277,7 @@
                         <tr>
                             <div class="form-group col">
                                 <td><Label>Gender</Label></td>
-                                <td><select class="form-control" name="Gender" required>
+                                <td><select class="form-control" id="Gender" required>
                                         <option value="">--select--</option>
                                         <option value="Male">Male</option>
                                         <option value="Female">Female</option>
@@ -348,21 +343,21 @@
                         <tr>
                             <div class="form-group col">
                                 <td><Label>Contact Number</Label></td>
-                                <td><input placeholder="Contact Number" required name="Contact_Number" maxlength="10"
+                                <td><input placeholder="Contact Number" required id="Contact_Number" maxlength="10"
                                         type="text" pattern="^\d{10}$" class="form-control"></td>
                             </div>
                         </tr>
                         <tr>
                             <div class="form-group col">
                                 <td><Label>Emergency Contact Number</Label></td>
-                                <td><input placeholder="Emergency Contact Number" name="Emergency_Contact"
-                                        maxlength="10" pattern="^\d{10}$" type="text" class="form-control"></td>
+                                <td><input placeholder="Emergency Contact Number" id="Emergency_Contact" maxlength="10"
+                                        pattern="^\d{10}$" type="text" class="form-control"></td>
                             </div>
                         </tr>
                         <tr>
                             <div class="form-group col">
                                 <td><Label>Email</Label></td>
-                                <td><input placeholder="Email" required name="Email" type="email" class="form-control">
+                                <td><input placeholder="Email" required id="Email" type="email" class="form-control">
                                 </td>
                             </div>
                         </tr>
@@ -374,20 +369,21 @@
                             <div class="form-group col">
                                 <td><Label>Father's Name / Mother's Name</Label></td>
                                 <td><input placeholder="Father's Name / Mother's Name" name="Parent" type="text"
-                                        class="form-control"></td>
+                                        class="form-control" id="parent"></td>
                             </div>
                         </tr>
                         <tr>
                             <div class="form-group col">
                                 <td><Label>Spouse's Name</Label></td>
-                                <td><input placeholder="Spouse's Name" name="Spouse" type="text" class="form-control">
+                                <td><input placeholder="Spouse's Name" name="Spouse" type="text" class="form-control"
+                                        id="spouse">
                                 </td>
                             </div>
                         </tr>
                         <tr>
                             <div class="form-group col">
                                 <td><Label>File</Label></td>
-                                <td><input name="File" type="file" class="form-control"></td>
+                                <td><input name="File" type="file" class="form-control" id="file"></td>
                             </div>
                         </tr>
                     </div>
@@ -499,17 +495,17 @@
                                 <td><label for="">IFSC</label></td>
                                 <td><input placeholder="SBIN0071242" style="width: 96%;"
                                         pattern="^[A-Za-z]{4}0[A-Za-z0-9]{6}$" name="IFSC" type="text"
-                                        class="form-control ml-4"></td>
+                                        class="form-control ml-4" id="IFSCcode"></td>
                             </tr>
                             <tr>
                                 <td><label for="">Name of Bank</label></td>
                                 <td><input placeholder="Name Of Bank" style="width: 96%;" name="BankName" type="text"
-                                        class="form-control ml-4"></td>
+                                        class="form-control ml-4" id="bankName"></td>
                             </tr>
                             <tr>
                                 <td><label for="">Branch Name</label></td>
                                 <td><input placeholder="Branch Name" style="width: 96%;" name="BranchName" type="text"
-                                        class="form-control ml-4"></td>
+                                        class="form-control ml-4" id="branchName"></td>
                             </tr>
 
 
@@ -521,7 +517,8 @@
                             <tr>
                                 <td><label for="">Transaction Type</label></td>
                                 <td>
-                                    <select style="width: 96%;" class="form-control ml-4" name="Transaction_Type">
+                                    <select style="width: 96%;" class="form-control ml-4" name="Transaction_Type"
+                                        id="transType">
                                         <option value="">--select--</option>
                                         <option value="ATM">ATM</option>
                                         <option value="Cash">Cash</option>
@@ -554,7 +551,7 @@
                                 <tr>
                                     <td><label for="">Enter TDS Percentage</label></td>
                                     <td><input placeholder="TDS Percentage" style="width: 96%;" name="TDS_Percentage"
-                                            type="text" class="form-control ml-4"></td>
+                                            type="text" class="form-control ml-4" id="TDS_Percentage"></td>
                                 </tr>
                             </div><br>
 
@@ -562,7 +559,7 @@
                                 <tr>
                                     <td><label for="">Enter TDS Amount</label></td>
                                     <td><input placeholder="TDS Amount" style="width: 96%;" name="TDS_Amount"
-                                            type="text" class="form-control ml-4"></td>
+                                            type="text" class="form-control ml-4" id="TDS_Amount"></td>
                                 </tr>
                             </div>
                         </div><br>
@@ -588,7 +585,7 @@
                                 <tr>
                                     <td><label for="">Income Tax Number</label></td>
                                     <td><input placeholder="Income Tax Number" name="Income_Tax" type="text"
-                                            class="form-control "></td>
+                                            class="form-control " id="incomeTax"></td>
                                 </tr>
                             </div><br>
                             <div>
@@ -604,7 +601,7 @@
                                 <tr>
                                     <td><label for="">Universal Account Number (UAN)</label></td>
                                     <td><input placeholder="12 digit number" pattern="\d{12}" maxlength="12" name="UAN"
-                                            type="text" class="form-control "></td>
+                                            type="text" class="form-control " id="uan"></td>
                                 </tr>
                             </div><br>
 
@@ -615,21 +612,21 @@
                                     <td><label for="">PF Account Number</label></td>
                                     <td><input placeholder="MH/PUN/1234567/12" name="PF"
                                             pattern="[A-Z]{2}/[A-Z0-9]{3}/[0-9]{7}/[0-9]{0,2}" type="text"
-                                            class="form-control "></td>
+                                            class="form-control " id="pf"></td>
                                 </tr>
                             </div><br>
                             <div>
                                 <tr>
                                     <td><label for="">PAN Number</label></td>
                                     <td><input placeholder="ABCDE1234F" name="PAN" pattern="[A-Z]{5}[0-9]{4}[A-Z]"
-                                            maxlength="10" type="text" class="form-control "></td>
+                                            maxlength="10" type="text" class="form-control " id="pan"></td>
                                 </tr>
                             </div><br>
                             <div>
                                 <tr>
                                     <td><label for="">PR Account Number</label></td>
                                     <td><input placeholder="12 digit number" pattern="\d{12}" name="PR" type="text"
-                                            class="form-control "></td>
+                                            class="form-control " id="pr"></td>
                                 </tr>
                             </div><br>
 
@@ -638,7 +635,8 @@
                     </div><br>
 
                     <!------ statutory end------>
-                    <center><button type="submit" class="btn btn-secondary w-50">Save</button></center><br>
+                    <center><button type="submit" class="btn btn-secondary w-50" id="emp_save">Save</button></center>
+                    <br>
                 </form>
             </div>
 
@@ -684,6 +682,78 @@
 
 
 <script>
+    // employee save
+    $(document).on("click", "#emp_save", function () {
+
+        $.ajax({
+
+            type: 'POST',
+            url: "{% url 'fin_employee_save_atndnce' %}",
+
+            data: {
+                csrfmiddlewaretoken: '{{ csrf_token }}',
+                title: $('#title').val(),
+                firstname: $('#firstname').val(),
+                lastname: $('#lastname').val(),
+                Image: $("#image").val(),
+                Alias: $("#alias").val(),
+                JoiningDate: $("#JoiningDate").val(),
+                Salary_Date: $('#Salary_Date').val(),
+                Salary_Type: $("#salary_type").val(),
+                perhour: $("#amount_perhour").val(),
+                workhour: $("#working_hours").val(),
+                Salary_Amount: $("#salary_amount2").val(),
+                Employee_Number: $("#Employee_Number").val(),
+                Designation: $("#Designation").val(),
+                Location: $("#Location").val(),
+                Gender: $("#Gender").val(),
+                DOB: $("#DOB").val(),
+                Blood: $("#bloodGroupSelect").val(),
+                Contact_Number: $("#Contact_Number").val(),
+                Emergency_Contact: $("#Emergency_Contact").val(),
+                Email: $("#Email").val(),
+                Parent: $("#parent").val(),
+                Spouse: $("#spouse").val(),
+                File: $("#file").val(),
+                street: $("#perStreet").val(),
+                city: $("#perCity").val(),
+                state: $("#perState").val(),
+                pincode: $("#perPincode").val(),
+                country: $("#perCountry").val(),
+                tempStreet: $("#temStreet").val(),
+                tempCity: $("#temCity").val(),
+                tempState: $("#temState").val(),
+                tempPincode: $("#temPincode").val(),
+                tempCountry: $("#temCountry").val(),
+                tds_applicable: $("#TDS").val(),
+                TDS_Type: $("#TDStype").val(),
+                TDS_Percentage: $("#TDS_Percentage").val(),
+                TDS_Amount: $("#TDS_Amount").val(),
+                Bank_Details: $("#bankDetails").val(),
+                Account_Number: $("#accountnumber").val(),
+                IFSC: $("#IFSCcode").val(),
+                BankName: $("#bankName").val(),
+                BranchName: $("#branchName").val(),
+                Transaction_Type: $("#transType").val(),
+                Income_Tax: $("#incomeTax").val(),
+                Aadhar: $("#aadhar").val(),
+                UAN: $("#uan").val(),
+                PF: $("#pf").val(),
+                PAN: $("#pan").val(),
+                PR: $("#pr").val(),
+
+
+            },
+           
+            success: function (response) {
+                console.log("success")
+                document.getElementById("modalCustomer").reset();
+                location.reload();
+            },
+        });
+    });
+    // -------------------------------------
+
 
     var today = new Date();
     var yyyy = today.getFullYear();
