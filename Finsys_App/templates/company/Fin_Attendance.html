@@ -4,8 +4,10 @@
   <div class="card radius-15 h-20">
     <div class="row">
       <div class="col-md-12">
-        <center><h2 class="mt-3">ALL ATTENDANCE</h2></center>
-        <hr/>
+        <center>
+          <h2 class="mt-3">ALL ATTENDANCE</h2>
+        </center>
+        <hr />
       </div>
     </div>
   </div>
@@ -16,13 +18,16 @@
         <div class="row">
           <div class="col-md-4">
             <div class="d-flex">
-              <input type="text" id="search" class="form-control" placeholder="Search.." autocomplete="off"/>
+              <input type="text" id="search" class="form-control" placeholder="Search.." autocomplete="off" />
               <div class="dropdown ml-1" style="justify-content: left">
-                <button type="button" class="btn btn-outline-secondary dropdown-toggle text-grey" data-toggle="dropdown"><i class="fa fa-sort"></i> Sort by</button>
+                <button type="button" class="btn btn-outline-secondary dropdown-toggle text-grey"
+                  data-toggle="dropdown"><i class="fa fa-sort"></i> Sort by</button>
                 <div class="dropdown-menu" style="background-color: black">
                   <a class="dropdown-item" href="#" style="height: 40px; font-size: 15px; color: white">All</a>
-                  <a class="dropdown-item" style="height: 40px; font-size: 15px; color: white;cursor: pointer;" onclick="sortTable(1)">Employee Name</a>
-                  <a class="dropdown-item" style="height: 40px; font-size: 15px; color: white;cursor: pointer;" onclick="sortHsnAscending()">Month</a>
+                  <a class="dropdown-item" style="height: 40px; font-size: 15px; color: white;cursor: pointer;"
+                    onclick="sortTable(1)">Employee Name</a>
+                  <a class="dropdown-item" style="height: 40px; font-size: 15px; color: white;cursor: pointer;"
+                    onclick="sortHsnAscending()">Month</a>
                 </div>
               </div>
             </div>
@@ -30,9 +35,12 @@
           <div class="col-md-3">
           </div>
           <div class="col-md-5 d-flex justify-content-end">
-            <button type="button" class="btn btn-outline-secondary text-grey" id="exportBtn"><i class="fa fa-table"></i> Export To Excel</button>
-            
-            <a href="{% url 'Fin_Add_Attendance' %}" class="ml-1"></i><button type="button" class="btn btn-outline-secondary text-grey"><i class="fa fa-plus font-weight-light"></i> New</button></a>
+            <button type="button" class="btn btn-outline-secondary text-grey" id="exportBtn"><i class="fa fa-table"></i>
+              Export To Excel</button>
+
+            <a href="{% url 'Fin_Add_Attendance' %}" class="ml-1"></i><button type="button"
+                class="btn btn-outline-secondary text-grey"><i class="fa fa-plus font-weight-light"></i>
+                New</button></a>
           </div>
         </div>
       </div>
@@ -51,15 +59,15 @@
           </tr>
         </thead>
         <tbody>
-          {% for a in items %}
+          {% for a in emp %}
           <tr class="clickable-row" data-href="#" style="cursor: pointer;">
             <td>{{ forloop.counter }}</td>
-            <td>{{ a.name }}</td>
+            <td>{{ a.first_name }} {{ a.last_name }} <input type="text" value="{{a.id}}" id="xxyz{{ forloop.counter }}"
+                style="display: none;"></td>
             <td>{{ a.hsn }}</td>
             <td>{{ a.selling_price }}</td>
             <td>{{ a.purchase_price }}</td>
             <td>{{ a.opening_stock }}</td>
-            <td>{{ a.current_stock }}</td>
             <td>{{ a.status }}</td>
           </tr>
           {% endfor %}
@@ -74,16 +82,43 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.9/xlsx.full.min.js"></script>
 <script>
+
+  window.onload = function () {
+    ids = $("#xxyz2").val()
+
+    // Assume 'Some Product' is the title you want to check
+    $.ajax(
+      console.log(ids), {
+
+
+      url: '{% url "Fin_attendance_details" %}',
+      method: 'GET',
+      data: {
+        id: ids,
+      },
+      success: function (response) {
+        const days = response.days;
+        for (let i = 0; i < days.length; i++) {
+          console.log(days[i]); // Print each day
+        }
+      },
+      error: function () {
+        console.error('Error checking product existence.');
+      }
+    });
+  }
+
+
   var $rows = $('#itemsTable tbody tr');
-  $('#search').keyup(function() {
+  $('#search').keyup(function () {
     var val = $.trim($(this).val()).replace(/ +/g, ' ').toLowerCase();
-    
-    $rows.show().filter(function() {
+
+    $rows.show().filter(function () {
       var text = $(this).text().replace(/\s+/g, ' ').toLowerCase();
       return !~text.indexOf(val);
     }).hide();
   });
-  
+
   document.getElementById("exportBtn").addEventListener("click", function () {
     const Table = document.getElementById("itemsTable");
     const ws = XLSX.utils.table_to_sheet(Table);
@@ -91,7 +126,7 @@
     XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
     XLSX.writeFile(wb, "items.xlsx");
   });
-  
+
 
   jQuery(document).ready(function ($) {
     $(".clickable-row").click(function () {
@@ -127,8 +162,8 @@
         y = rows[i + 1].getElementsByTagName("td")[columnIndex].textContent.toLowerCase();
 
         if (x > y) {
-            shouldSwitch = true;
-            break;
+          shouldSwitch = true;
+          break;
         }
       }
 
@@ -139,7 +174,7 @@
     }
   }
 
-  function filterTable(row,filterValue) {
+  function filterTable(row, filterValue) {
     var table = document.getElementById("itemsTable");
     var rows = table.getElementsByTagName("tr");
 
@@ -166,12 +201,12 @@
 
     // Remove existing rows from the table
     for (var i = table.rows.length - 1; i > 0; i--) {
-        table.deleteRow(i);
+      table.deleteRow(i);
     }
 
     // Append the sorted rows back to the table
     rows.forEach(function (row) {
-        table.tBodies[0].appendChild(row);
+      table.tBodies[0].appendChild(row);
     });
   }
 </script>

@@ -4,6 +4,11 @@
 {% load static %}
 
 <style type="text/css">
+    html {
+        overflow-y: scroll;
+    }
+
+
     select.list-dt {
         border: none;
         outline: 0;
@@ -20,7 +25,7 @@
         z-index: 0;
         border: none;
         border-radius: 0.5rem;
-        position: relative
+        position: relative;
     }
 </style>
 
@@ -100,7 +105,7 @@
                             </div>
                             <div class="col-md-4 d-flex justify-content-center">
                                 <button class="btn btn-outline-secondary w-50 text-light" type="submit">SUBMIT</button>
-                                <a href="#" class="btn btn-outline-secondary w-25 ml-1 text-light">CANCEL</a>
+                                <a onclick="window.history.back()" class="btn btn-outline-secondary w-25 ml-1 text-light">CANCEL</a>
                             </div>
                             <div class="col-md-4"></div>
                         </div>
@@ -114,7 +119,7 @@
 
 
 
-<div class="modal fade" id="newcust">
+<div class="modal fade" id="newcust" style="position: absolute;">
     <div class="modal-dialog modal-xl">
         <div class="modal-content" style="background-color: #213b52;">
             <div class="modal-header">
@@ -126,7 +131,7 @@
             <div class="modal-body">
 
                 <form action="" method="POST" autocomplete="off" id="modalCustomer">
-
+                    {% csrf_token %}
 
                     <div class="row">
                         <div class="col-md-6">
@@ -306,11 +311,9 @@
                         <tr>
                             <div class="form-group col">
                                 <td><Label>Blood Group</Label></td>
-
-
-                                <div style="display: flex;">
-                                    <select name="Blood" id="bloodGroupSelect" style="width: 85%;"
-                                        class="form-control col-11">
+                                <td>
+                                    <select name="Blood" id="bloodGroupSelect" style="width: 100%;"
+                                        class="form-control">
                                         <option value="">--select--</option>
                                         <option value="A+">A+</option>
                                         <option value="A-">A-</option>
@@ -321,21 +324,10 @@
                                         <option value="{{i.blood_group}}">{{i.blood_group}}</option>
                                         {% endfor %}
                                     </select>
-                                    <button onclick="handleBloodSelection()"
-                                        class="btn btn-outline-secondary text-grey mb-2 ml-1">+</button>
-                                </div>
-
-
+                                </td>
                             </div>
-                            <script>
-                                function handleBloodSelection() {
-
-                                    $('#bloodGroupModal').modal('show');
-
-                                }
-                            </script>
-
                         </tr>
+
                     </div>
 
 
@@ -649,39 +641,15 @@
 
 </div>
 
-<!-- Modal -->
-<div class="modal fade" id="bloodGroupModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-    aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Add New Blood Group </h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <!-- Modal content goes here -->
-                <form id="bloodGroupForm" method="post">
-                    {% csrf_token %}
 
-                    <label for="">Add New Blood Group</label>
-                    <input type="text" name="bloodGroup" class="form-control" id="bloodGroupInput">
-
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <button type="submit" class="btn btn-primary">Add</button>
-            </div>
-            </form>
-        </div>
-    </div>
-</div>
 
 
 
 
 <script>
+
+    
+
     // employee save
     $(document).on("click", "#emp_save", function () {
 
@@ -689,15 +657,16 @@
 
             type: 'POST',
             url: "{% url 'fin_employee_save_atndnce' %}",
+            headers: { "X-CSRFToken": "{{ csrf_token }}" },
 
             data: {
-                csrfmiddlewaretoken: '{{ csrf_token }}',
-                title: $('#title').val(),
-                firstname: $('#firstname').val(),
-                lastname: $('#lastname').val(),
+                //csrfmiddlewaretoken: '{{ csrf_token }}',
+                Title: $('#title').val(),
+                First_Name: $('#firstname').val(),
+                Last_Name: $('#lastname').val(),
                 Image: $("#image").val(),
                 Alias: $("#alias").val(),
-                JoiningDate: $("#JoiningDate").val(),
+                Joining_Date: $("#JoiningDate").val(),
                 Salary_Date: $('#Salary_Date').val(),
                 Salary_Type: $("#salary_type").val(),
                 perhour: $("#amount_perhour").val(),
@@ -744,7 +713,7 @@
 
 
             },
-           
+
             success: function (response) {
                 console.log("success")
                 document.getElementById("modalCustomer").reset();

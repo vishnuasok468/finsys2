@@ -1597,7 +1597,22 @@ def Fin_Edit_Staff_profile_Action(request):
 
 
 def Fin_Attendance(request):
-    return render(request,'company/Fin_Attendance.html')
+    if 's_id' in request.session:
+        s_id = request.session['s_id']
+        log = Fin_Login_Details.objects.get(id = s_id)
+        if log.User_Type == 'Staff':
+            staff =Fin_Staff_Details.objects.get(Login_Id =log)
+            emp = Employee.objects.filter(company = staff.company_id,employee_status = 'active')
+
+        if log.User_Type == 'Company':
+            com = Fin_Company_Details.objects.get(Login_Id = log)
+            emp = Employee.objects.filter(company = com.id,employee_status = 'active')
+
+
+        context ={
+            "emp":emp
+        }    
+        return render(request,'company/Fin_Attendance.html',context)
 
 def Fin_Add_Attendance(request):
     if 's_id' in request.session:
@@ -1606,12 +1621,14 @@ def Fin_Add_Attendance(request):
         if log.User_Type == 'Staff':
             staff =Fin_Staff_Details.objects.get(Login_Id =log)
             emp = Employee.objects.filter(company = staff.company_id,employee_status = 'active')
+            bgroup = Employee_Blood_Group.objects.filter(company = staff.company_id)
         if log.User_Type == 'Company':
             com = Fin_Company_Details.objects.get(Login_Id = log)
             emp = Employee.objects.filter(company = com.id,employee_status = 'active')
+            bgroup = Employee_Blood_Group.objects.filter(company = com.id)
 
         context ={
-            'emp':emp
+            'emp':emp,'bloodgroup':bgroup
         }
         return render(request,'company/Fin_add_attendance.html',context)
     return redirect('Fin_Attendance')
@@ -1626,11 +1643,32 @@ def Fin_Holiday_check_for_attendance(request):
         if log.User_Type == 'Staff':
             staff =Fin_Staff_Details.objects.get(Login_Id =log)
             exists = Holiday.objects.filter(company = staff.company_id,start_date__lte=date, end_date__gte=date).exists()
+            #atndance = Fin_Attendances.objects.filter()
         if log.User_Type == 'Company':
             com = Fin_Company_Details.objects.get(Login_Id = log)
             exists = Holiday.objects.filter(company = com.id,start_date__lte=date, end_date__gte=date).exists()
         return JsonResponse({'exists': exists})
     
+def Fin_attendance_details(request):
+    ids = request.GET.get('id')
+    att = Fin_Attendances.objects.filter(employee=ids)
+    days = []
+   
+    for i in att:  
+       
+        date_format = "%Y-%m-%d"
+        a = datetime.strptime(str(i.start_date), date_format)
+        b = datetime.strptime(str(i.end_date), date_format)
+        print(f"Start date: {i.start_date}, End date: {i.end_date}")  # Add this line
+
+        delta = b - a
+        days.append(delta.days)
+    for i in days:
+        days[i] += 1
+        print(days[i])
+
+    return JsonResponse({'days': days})
+
 def Fin_attendance_save(request):
     if 's_id' in request.session:
         if request.method == 'POST':
@@ -1721,13 +1759,18 @@ def fin_employee_save_atndnce(request):
         tempCountry = request.POST['tempCountry']
         
         bankdetails = request.POST['Bank_Details']
-        accoutnumber = request.POST['Account_Number']
-        ifsc = request.POST['IFSC']
-        bankname = request.POST['BankName']
-        branchname = request.POST['BranchName']
-        transactiontype = request.POST['Transaction_Type']
-
-        
+        if bankdetails == "Yes":
+            accoutnumber = request.POST['Account_Number']
+            ifsc = request.POST['IFSC']
+            bankname = request.POST['BankName']
+            branchname = request.POST['BranchName']
+            transactiontype = request.POST['Transaction_Type']
+        else:
+            accoutnumber = ''
+            ifsc = ''
+            bankname = ''
+            branchname = ''
+            transactiontype = ''
 
         if request.POST['tds_applicable'] == 'Yes':
             tdsapplicable = request.POST['tds_applicable']
@@ -1924,3 +1967,5 @@ def fin_employee_save_atndnce(request):
             allmodules = Fin_Modules_List.objects.get(company_id = com.company_id_id)
             employee = Employee.objects.filter(company_id=com.company_id_id)
         return redirect('Fin_Add_Attendance')
+
+
