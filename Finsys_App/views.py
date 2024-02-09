@@ -1594,24 +1594,147 @@ def Fin_Edit_Staff_profile_Action(request):
       
     
 # ---------------------------end company------------------------------------     
-
+import calendar
+from calendar import monthrange,month_name
 
 def Fin_Attendance(request):
     if 's_id' in request.session:
         s_id = request.session['s_id']
         log = Fin_Login_Details.objects.get(id = s_id)
+        
         if log.User_Type == 'Staff':
+            event_counts = {}
+            formatted_event_counts = {}
             staff =Fin_Staff_Details.objects.get(Login_Id =log)
-            emp = Employee.objects.filter(company = staff.company_id,employee_status = 'active')
+            all_events = Fin_Attendances.objects.filter(company=staff.company_id)
+            for event in all_events:
+                month_year = event.start_date.strftime('%Y-%m')  # Format: 'YYYY-MM'
+                year, month = map(int, month_year.split('-'))
+
+                event_duration = (event.end_date - event.start_date).days + 1 if event.end_date else 1
+
+                if month_year not in event_counts:
+                    event_counts[month_year] = event_duration
+                else:
+                    event_counts[month_year] += event_duration
+            for key, value in event_counts.items():
+                year, month = map(int, key.split('-'))
+                total_days = monthrange(year, month)[1]
+                month_name = calendar.month_name[int(month)]
+                formatted_month_year = f"{month_name}-{year}"
+                formatted_event_counts[formatted_month_year] = {'count': value, 'total_days': total_days, 'month': month_name,
+                                                         'year': year}
+                
+            attendance_data = Fin_Attendances.objects.filter(company=staff.company_id)
+            employee_attendance = {}
+
+            for entry in attendance_data:
+                year = entry.start_date.year
+                month = entry.start_date.month
+
+                key = (entry.employee.id, year, month)
+               
+                if key not in employee_attendance:
+                    formatted_month_year = f"{calendar.month_name[int(month)]}-{year}"
+                    employee_attendance[key] = {
+                    'formatted_month_year': formatted_month_year,
+                    'e_id':entry.employee.id,
+                    'employee': entry.employee.first_name + ' ' + entry.employee.last_name,
+                    'year': year,
+                    'month': calendar.month_name[int(month)],
+                    'working_days': 0,
+                    'holidays': 0,
+                    'absent_days': 0,
+                }
+
+                if entry.status == 'Leave':
+                    absent_days = (entry.end_date - entry.start_date).days + 1 if entry.end_date else 1
+                    employee_attendance[key]['absent_days'] += absent_days
+
+                    _, last_day = monthrange(year, month)
+
+                holidays_data = Holiday.objects.filter(
+                    company=staff.company_id,
+                    start_date__year=year,
+                    start_date__month=month
+                )
+                total_holidays = 0
+                for holiday in holidays_data:
+                    total_holidays += (holiday.end_date - holiday.start_date).days + 1
+
+                employee_attendance[key]['holidays'] = total_holidays
+                employee_attendance[key]['working_days'] = last_day - total_holidays - employee_attendance[key]['absent_days']
+            
 
         if log.User_Type == 'Company':
+            event_counts = {}
+            formatted_event_counts = {}
             com = Fin_Company_Details.objects.get(Login_Id = log)
-            emp = Employee.objects.filter(company = com.id,employee_status = 'active')
+            all_events = Fin_Attendances.objects.filter(company=com.id)
+            for event in all_events:
+                month_year = event.start_date.strftime('%Y-%m')  # Format: 'YYYY-MM'
+                year, month = map(int, month_year.split('-'))
 
+                event_duration = (event.end_date - event.start_date).days + 1 if event.end_date else 1
 
-        context ={
-            "emp":emp
-        }    
+                if month_year not in event_counts:
+                    event_counts[month_year] = event_duration
+                else:
+                    event_counts[month_year] += event_duration
+            for key, value in event_counts.items():
+                year, month = map(int, key.split('-'))
+                total_days = monthrange(year, month)[1]
+                month_name = calendar.month_name[int(month)]
+                formatted_month_year = f"{month_name}-{year}"
+                formatted_event_counts[formatted_month_year] = {'count': value, 'total_days': total_days, 'month': month_name,
+                                                         'year': year}
+                
+            attendance_data = Fin_Attendances.objects.filter(company=com.id)
+            employee_attendance = {}
+
+            for entry in attendance_data:
+                year = entry.start_date.year
+                month = entry.start_date.month
+
+                key = (entry.employee.id, year, month)
+               
+                if key not in employee_attendance:
+                    formatted_month_year = f"{calendar.month_name[int(month)]}-{year}"
+                    employee_attendance[key] = {
+                    'formatted_month_year': formatted_month_year,
+                    'e_id':entry.employee.id,
+                    'employee': entry.employee.first_name + ' ' + entry.employee.last_name,
+                    'year': year,
+                    'month': calendar.month_name[int(month)],
+                    'working_days': 0,
+                    'holidays': 0,
+                    'absent_days': 0,
+                }
+
+                if entry.status == 'Leave':
+                    absent_days = (entry.end_date - entry.start_date).days + 1 if entry.end_date else 1
+                    employee_attendance[key]['absent_days'] += absent_days
+
+                    _, last_day = monthrange(year, month)
+
+                holidays_data = Holiday.objects.filter(
+                    company=com.id,
+                    start_date__year=year,
+                    start_date__month=month
+                )
+                total_holidays = 0
+                for holiday in holidays_data:
+                    total_holidays += (holiday.end_date - holiday.start_date).days + 1
+
+                employee_attendance[key]['holidays'] = total_holidays
+                employee_attendance[key]['working_days'] = last_day - total_holidays - employee_attendance[key]['absent_days']
+            
+
+        context = {
+            "events": all_events,
+            "event_counts_json": formatted_event_counts,
+            'employee_attendance': list(employee_attendance.values()),
+        }   
         return render(request,'company/Fin_Attendance.html',context)
 
 def Fin_Add_Attendance(request):
@@ -1649,25 +1772,7 @@ def Fin_Holiday_check_for_attendance(request):
             exists = Holiday.objects.filter(company = com.id,start_date__lte=date, end_date__gte=date).exists()
         return JsonResponse({'exists': exists})
     
-def Fin_attendance_details(request):
-    ids = request.GET.get('id')
-    att = Fin_Attendances.objects.filter(employee=ids)
-    days = []
-   
-    for i in att:  
-       
-        date_format = "%Y-%m-%d"
-        a = datetime.strptime(str(i.start_date), date_format)
-        b = datetime.strptime(str(i.end_date), date_format)
-        print(f"Start date: {i.start_date}, End date: {i.end_date}")  # Add this line
 
-        delta = b - a
-        days.append(delta.days)
-    for i in days:
-        days[i] += 1
-        print(days[i])
-
-    return JsonResponse({'days': days})
 
 def Fin_attendance_save(request):
     if 's_id' in request.session:
@@ -1692,7 +1797,6 @@ def Fin_attendance_save(request):
 
 def chumma(request):
     return render(request,'company/chumma.html')
-
 
 
 

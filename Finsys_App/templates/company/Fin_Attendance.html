@@ -27,7 +27,7 @@
                   <a class="dropdown-item" style="height: 40px; font-size: 15px; color: white;cursor: pointer;"
                     onclick="sortTable(1)">Employee Name</a>
                   <a class="dropdown-item" style="height: 40px; font-size: 15px; color: white;cursor: pointer;"
-                    onclick="sortHsnAscending()">Month</a>
+                    onclick="sortTableByMonth(2)">Month</a>
                 </div>
               </div>
             </div>
@@ -59,16 +59,15 @@
           </tr>
         </thead>
         <tbody>
-          {% for a in emp %}
+          {% for entry in employee_attendance %}
           <tr class="clickable-row" data-href="#" style="cursor: pointer;">
             <td>{{ forloop.counter }}</td>
-            <td>{{ a.first_name }} {{ a.last_name }} <input type="text" value="{{a.id}}" id="xxyz{{ forloop.counter }}"
-                style="display: none;"></td>
-            <td>{{ a.hsn }}</td>
-            <td>{{ a.selling_price }}</td>
-            <td>{{ a.purchase_price }}</td>
-            <td>{{ a.opening_stock }}</td>
-            <td>{{ a.status }}</td>
+            <td>{{ entry.employee }} </td>
+            <td>{{ entry.month }}</td>
+            <td>{{ entry.year }}</td>
+            <td>{{ entry.holidays }}</td>
+            <td>{{ entry.working_days }}</td>
+            <td>{{entry.absent_days }}</td>
           </tr>
           {% endfor %}
         </tbody>
@@ -83,30 +82,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.9/xlsx.full.min.js"></script>
 <script>
 
-  window.onload = function () {
-    ids = $("#xxyz2").val()
-
-    // Assume 'Some Product' is the title you want to check
-    $.ajax(
-      console.log(ids), {
-
-
-      url: '{% url "Fin_attendance_details" %}',
-      method: 'GET',
-      data: {
-        id: ids,
-      },
-      success: function (response) {
-        const days = response.days;
-        for (let i = 0; i < days.length; i++) {
-          console.log(days[i]); // Print each day
-        }
-      },
-      error: function () {
-        console.error('Error checking product existence.');
-      }
-    });
-  }
 
 
   var $rows = $('#itemsTable tbody tr');
@@ -174,41 +149,39 @@
     }
   }
 
-  function filterTable(row, filterValue) {
-    var table = document.getElementById("itemsTable");
-    var rows = table.getElementsByTagName("tr");
 
-    for (var i = 1; i < rows.length; i++) {
-      var statusCell = rows[i].getElementsByTagName("td")[row];
 
-      if (filterValue == "all" || statusCell.textContent.toLowerCase() == filterValue) {
-        rows[i].style.display = "";
-      } else {
-        rows[i].style.display = "none";
+  function sortTableByMonth(columnIndex) {
+  var table = document.getElementById("itemsTable");
+  var rows = table.rows;
+  var switching = true;
+
+  while (switching) {
+    switching = false;
+
+    for (var i = 1; i < rows.length - 1; i++) {
+      var shouldSwitch = false;
+      var x = rows[i].getElementsByTagName("td")[columnIndex].textContent.toLowerCase();
+      var y = rows[i + 1].getElementsByTagName("td")[columnIndex].textContent.toLowerCase();
+
+      // Assuming the column contains month names (e.g., "January", "February", etc.)
+      var months = ["january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december"];
+      var xIndex = months.indexOf(x);
+      var yIndex = months.indexOf(y);
+
+      if (xIndex > yIndex) {
+        shouldSwitch = true;
+        break;
       }
     }
-  }
 
-  function sortHsnAscending() {
-    var table = document.getElementById("itemsTable");
-    var rows = Array.from(table.rows).slice(1);
-
-    rows.sort(function (a, b) {
-      var hsnA = parseInt(a.cells[2].textContent);
-      var hsnB = parseInt(b.cells[2].textContent);
-      return hsnA - hsnB;
-    });
-
-    // Remove existing rows from the table
-    for (var i = table.rows.length - 1; i > 0; i--) {
-      table.deleteRow(i);
+    if (shouldSwitch) {
+      rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+      switching = true;
     }
-
-    // Append the sorted rows back to the table
-    rows.forEach(function (row) {
-      table.tBodies[0].appendChild(row);
-    });
   }
+}
+
 </script>
 
 {% endblock %}
