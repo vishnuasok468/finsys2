@@ -784,16 +784,13 @@
 
     // display salary --------------------------------------------
     $(document).ready(function () {
-        // Initially hide the salary_amount div
         $("#salary_amount").hide();
         $("#salary_timebase").hide();
 
-        // Add change event listener to the salary_details dropdown
         $("#salary_type").change(function () {
             // Get the selected value
             var selectedValue = $(this).val();
 
-            // Check if the selected value is "Temporary" or "Fixed"
             if (selectedValue === "Temporary" || selectedValue === "Fixed") {
                 // Display the salary_amount div
                 $("#salary_amount").show();
