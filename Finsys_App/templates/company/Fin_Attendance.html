@@ -23,7 +23,7 @@
                 <button type="button" class="btn btn-outline-secondary dropdown-toggle text-grey"
                   data-toggle="dropdown"><i class="fa fa-sort"></i> Sort by</button>
                 <div class="dropdown-menu" style="background-color: black">
-                  <a class="dropdown-item" href="#" style="height: 40px; font-size: 15px; color: white">All</a>
+                  <a class="dropdown-item" href="{% url 'Fin_Attendance' %}" style="height: 40px; font-size: 15px; color: white">All</a>
                   <a class="dropdown-item" style="height: 40px; font-size: 15px; color: white;cursor: pointer;"
                     onclick="sortTable(1)">Employee Name</a>
                   <a class="dropdown-item" style="height: 40px; font-size: 15px; color: white;cursor: pointer;"
@@ -60,7 +60,7 @@
         </thead>
         <tbody>
           {% for entry in employee_attendance %}
-          <tr class="clickable-row" data-href="#" style="cursor: pointer;">
+          <tr class="clickable-row" data-href="{% url 'Fin_Attendanceview' %}" style="cursor: pointer;">
             <td>{{ forloop.counter }}</td>
             <td>{{ entry.employee }} </td>
             <td>{{ entry.month }}</td>

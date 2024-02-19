@@ -41,7 +41,7 @@
                             <div class="col-md-8 mt-4 mb-4">
                                 <center>
                                     <h5 class="card-title">
-                                        <h3> ADD ATTENDANCE </h3>
+                                        <h3> ADD LEAVE </h3>
                                     </h5>
                                 </center>
                             </div>
@@ -105,7 +105,8 @@
                             </div>
                             <div class="col-md-4 d-flex justify-content-center">
                                 <button class="btn btn-outline-secondary w-50 text-light" type="submit">SUBMIT</button>
-                                <a onclick="window.history.back()" class="btn btn-outline-secondary w-25 ml-1 text-light">CANCEL</a>
+                                <a onclick="window.history.back()"
+                                    class="btn btn-outline-secondary w-25 ml-1 text-light">CANCEL</a>
                             </div>
                             <div class="col-md-4"></div>
                         </div>
@@ -648,7 +649,7 @@
 
 <script>
 
-    
+
 
     // employee save
     $(document).on("click", "#emp_save", function () {
@@ -742,12 +743,18 @@
             url: '{% url "Fin_Holiday_check_for_attendance" %}',
             method: 'POST',
             data: {
+                empid : $("#itemUnit").val(),
                 sdate: $("#sdate").val(),
                 csrfmiddlewaretoken: $("input[name = csrfmiddlewaretoken]").val(),
             },
             success: function (response) {
                 if (response.exists) {
                     alert('It is a Holiday')
+                    document.getElementById("sdate").valueAsDate = null;
+
+                }
+                if (response.atndance) {
+                    alert('Leave Already marked')
                     document.getElementById("sdate").valueAsDate = null;
 
                 }
@@ -765,12 +772,18 @@
             url: '{% url "Fin_Holiday_check_for_attendance" %}',
             method: 'POST',
             data: {
+                empid : $("#itemUnit").val(),
                 sdate: $("#edate").val(),
                 csrfmiddlewaretoken: $("input[name = csrfmiddlewaretoken]").val(),
             },
             success: function (response) {
                 if (response.exists) {
                     alert('It is a Holiday')
+                    document.getElementById("edate").valueAsDate = null;
+
+                }
+                if (response.atndance) {
+                    alert('Leave Already marked')
                     document.getElementById("edate").valueAsDate = null;
 
                 }

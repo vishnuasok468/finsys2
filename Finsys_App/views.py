@@ -1760,17 +1760,20 @@ def Fin_Add_Attendance(request):
 
 def Fin_Holiday_check_for_attendance(request):
     date = request.POST.get('sdate')
+    empid = request.POST.get('empid')
     if 's_id' in request.session:
         s_id = request.session['s_id']
         log = Fin_Login_Details.objects.get(id = s_id)
         if log.User_Type == 'Staff':
             staff =Fin_Staff_Details.objects.get(Login_Id =log)
             exists = Holiday.objects.filter(company = staff.company_id,start_date__lte=date, end_date__gte=date).exists()
-            #atndance = Fin_Attendances.objects.filter()
+            atndance = Fin_Attendances.objects.filter(employee = empid, company = staff.company_id,start_date__lte=date,end_date__gte=date).exists()
         if log.User_Type == 'Company':
             com = Fin_Company_Details.objects.get(Login_Id = log)
             exists = Holiday.objects.filter(company = com.id,start_date__lte=date, end_date__gte=date).exists()
-        return JsonResponse({'exists': exists})
+            atndance = Fin_Attendances.objects.filter(employee = empid, company = com.id,start_date__lte=date,end_date__gte=date).exists()
+
+        return JsonResponse({'exists': exists,'atndance':atndance})
     
 
 
@@ -2071,5 +2074,9 @@ def fin_employee_save_atndnce(request):
             allmodules = Fin_Modules_List.objects.get(company_id = com.company_id_id)
             employee = Employee.objects.filter(company_id=com.company_id_id)
         return redirect('Fin_Add_Attendance')
+    
+
+def Fin_Attendanceview(request):
+    return render(request,'company/Fin_AttendanceView.html')
 
 
