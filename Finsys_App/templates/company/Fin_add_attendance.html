@@ -788,7 +788,6 @@
         $("#salary_timebase").hide();
 
         $("#salary_type").change(function () {
-            // Get the selected value
             var selectedValue = $(this).val();
 
             if (selectedValue === "Temporary" || selectedValue === "Fixed") {
@@ -796,7 +795,6 @@
                 $("#salary_amount").show();
                 $("#salary_timebase").hide();
             } else if (selectedValue === 'Time Based') {
-                // Hide the salary_amount div and show salary_timebase div for other options
                 $("#salary_amount").show();
                 $("#salary_timebase").show();
             } else {

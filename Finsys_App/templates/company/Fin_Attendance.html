@@ -163,7 +163,6 @@
       var x = rows[i].getElementsByTagName("td")[columnIndex].textContent.toLowerCase();
       var y = rows[i + 1].getElementsByTagName("td")[columnIndex].textContent.toLowerCase();
 
-      // Assuming the column contains month names (e.g., "January", "February", etc.)
       var months = ["january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december"];
       var xIndex = months.indexOf(x);
       var yIndex = months.indexOf(y);
