@@ -60,7 +60,7 @@
         </thead>
         <tbody>
           {% for entry in employee_attendance %}
-          <tr class="clickable-row" data-href="{% url 'Fin_Attendanceview' %}" style="cursor: pointer;">
+          <tr class="clickable-row" data-href="{% url 'Fin_Attendanceview' mn=entry.month yr=entry.year %}" style="cursor: pointer;">
             <td>{{ forloop.counter }}</td>
             <td>{{ entry.employee }} </td>
             <td>{{ entry.month }}</td>

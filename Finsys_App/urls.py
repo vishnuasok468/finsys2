@@ -90,7 +90,7 @@ urlpatterns = [
     path('Fin_Holiday_check_for_attendance',views.Fin_Holiday_check_for_attendance,name='Fin_Holiday_check_for_attendance'),
     path('Fin_attendance_save',views.Fin_attendance_save,name='Fin_attendance_save'),
     path('fin_employee_save_atndnce',views.fin_employee_save_atndnce,name='fin_employee_save_atndnce'),
-    path('Fin_Attendanceview',views.Fin_Attendanceview,name='Fin_Attendanceview'),
+    path('Fin_Attendanceview/<mn>/<yr>',views.Fin_Attendanceview,name='Fin_Attendanceview'),
 
     path('chumma',views.chumma,name='chumma'),
 

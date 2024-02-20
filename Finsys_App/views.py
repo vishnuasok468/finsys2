@@ -2076,7 +2076,30 @@ def fin_employee_save_atndnce(request):
         return redirect('Fin_Add_Attendance')
     
 
-def Fin_Attendanceview(request):
-    return render(request,'company/Fin_AttendanceView.html')
+def Fin_Attendanceview(request,mn,yr):
+    month_name = mn
+
+    month = list(calendar.month_name).index(month_name)
+    print(month)
+    year = yr
+    
+    sid = request.session['s_id']
+    loginn = Fin_Login_Details.objects.get(id=sid)
+    if loginn.User_Type == 'Company':
+        com = Fin_Company_Details.objects.get(Login_Id = sid)
+        events = Holiday.objects.filter(start_date__month=month,start_date__year=year,company_id=com.id)
+        #allmodules = Fin_Modules_List.objects.get(company_id = com.id)
+        #comments = Holiday_Comment.objects.filter(month=mn,year=year,company_id=com.id)
+        #for index, comment in enumerate(comments):
+            #comment.index = index + 1
+        
+    elif loginn.User_Type == 'Staff' :
+        com = Fin_Staff_Details.objects.get(Login_Id = sid)
+        events = Holiday.objects.filter(start_date__month=month,start_date__year=year,company_id=com.company_id)
+        #allmodules = Fin_Modules_List.objects.get(company_id = com.company_id_id)
+        #comments = Holiday_Comment.objects.filter(month=mn,year=year,company_id=com.company_id_id)
+        #for index, comment in enumerate(comments):
+            #comment.index = index + 1
+    return render(request,'company/Fin_AttendanceView.html',{'events':events,'month':month,'year':year})
 
 
