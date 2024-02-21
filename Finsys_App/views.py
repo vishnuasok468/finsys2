@@ -1710,6 +1710,7 @@ def Fin_Attendance(request):
                     'holidays': 0,
                     'absent_days': 0,
                 }
+            
 
                 if entry.status == 'Leave':
                     absent_days = (entry.end_date - entry.start_date).days + 1 if entry.end_date else 1
@@ -2076,30 +2077,26 @@ def fin_employee_save_atndnce(request):
         return redirect('Fin_Add_Attendance')
     
 
-def Fin_Attendanceview(request,mn,yr):
-    month_name = mn
+def Fin_Attendanceview(request,mn,yr,id):
+    if 's_id' in request.session:
+        month_name = mn
+        months = list(calendar.month_name).index(month_name) 
+        month = months - 1
 
-    month = list(calendar.month_name).index(month_name)
-    print(month)
-    year = yr
+        year = yr
     
-    sid = request.session['s_id']
-    loginn = Fin_Login_Details.objects.get(id=sid)
-    if loginn.User_Type == 'Company':
-        com = Fin_Company_Details.objects.get(Login_Id = sid)
-        events = Holiday.objects.filter(start_date__month=month,start_date__year=year,company_id=com.id)
-        #allmodules = Fin_Modules_List.objects.get(company_id = com.id)
-        #comments = Holiday_Comment.objects.filter(month=mn,year=year,company_id=com.id)
-        #for index, comment in enumerate(comments):
-            #comment.index = index + 1
+        sid = request.session['s_id']
+        loginn = Fin_Login_Details.objects.get(id=sid)
+        if loginn.User_Type == 'Company':
+            com = Fin_Company_Details.objects.get(Login_Id = sid)
+            events = Holiday.objects.filter(start_date__month=months,start_date__year=year,company_id=com.id)
+            attendance = Fin_Attendances.objects.filter(employee = id,company = com.id)
         
-    elif loginn.User_Type == 'Staff' :
-        com = Fin_Staff_Details.objects.get(Login_Id = sid)
-        events = Holiday.objects.filter(start_date__month=month,start_date__year=year,company_id=com.company_id)
-        #allmodules = Fin_Modules_List.objects.get(company_id = com.company_id_id)
-        #comments = Holiday_Comment.objects.filter(month=mn,year=year,company_id=com.company_id_id)
-        #for index, comment in enumerate(comments):
-            #comment.index = index + 1
-    return render(request,'company/Fin_AttendanceView.html',{'events':events,'month':month,'year':year})
+        elif loginn.User_Type == 'Staff' :
+            com = Fin_Staff_Details.objects.get(Login_Id = sid)
+            events = Holiday.objects.filter(start_date__month=months,start_date__year=year,company_id=com.company_id)
+            attendance = Fin_Attendances.objects.filter(employee = id,company = com.company_id)
+
+        return render(request,'company/Fin_AttendanceView.html',{'events':events,'month':month,'year':year,'attendance':attendance})
 
 
