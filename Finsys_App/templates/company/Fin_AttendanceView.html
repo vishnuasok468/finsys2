@@ -399,7 +399,6 @@
             cell.style.color = 'black';
         });
 
-        // Identify and hide the last column from the HTML content
         const lastColumnIndex = container.rows[0].cells.length - 1; // Assuming the table has a header row
         Array.from(container.rows).forEach(row => {
             row.cells[lastColumnIndex].style.display = 'none';
@@ -415,7 +414,6 @@
             jsPDF: { unit: 'mm', format: 'a3', orientation: 'portrait' }, // Adjust format and orientation
         };
 
-        // Generate PDF from the modified container
         html2pdf().from(container).set(pdfOptions).save().then(() => {
             // Display the last column again after downloading the PDF
             Array.from(container.rows).forEach(row => {
@@ -433,7 +431,6 @@
                 cell.style.color = originalStyles.color;
             });
 
-            // Restore the original styles for the container
             container.style.backgroundColor = originalStyles.backgroundColor;
             container.style.color = originalStyles.color;
         });
