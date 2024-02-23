@@ -765,7 +765,6 @@
 
     $(document).on("input", "#edate", function () {
 
-        // Assume 'Some Product' is the title you want to check
         $.ajax({
             url: '{% url "Fin_Holiday_check_for_attendance" %}',
             method: 'POST',
