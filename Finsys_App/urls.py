@@ -91,6 +91,8 @@ urlpatterns = [
     path('Fin_attendance_save',views.Fin_attendance_save,name='Fin_attendance_save'),
     path('fin_employee_save_atndnce',views.fin_employee_save_atndnce,name='fin_employee_save_atndnce'),
     path('Fin_Attendanceview/<mn>/<yr>/<id>',views.Fin_Attendanceview,name='Fin_Attendanceview'),
+    path('Fin_editAttendance/<id>',views.Fin_editAttendance,name='Fin_editAttendance'),
+    path('Fin_deleteAttendance/<id>',views.Fin_deleteAttendance,name='Fin_deleteAttendance'),
 
     path('chumma',views.chumma,name='chumma'),
 

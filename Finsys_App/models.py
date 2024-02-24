@@ -664,3 +664,10 @@ class Fin_Attendances(models.Model):
     employee = models.ForeignKey(Employee,on_delete=models.CASCADE)
     company = models.ForeignKey(Fin_Company_Details,on_delete = models.CASCADE)
     login_id = models.ForeignKey(Fin_Login_Details,on_delete = models.CASCADE)
+
+class Fin_Attendance_history(models.Model):
+    company = models.ForeignKey(Fin_Company_Details,on_delete=models.CASCADE)
+    login_id = models.ForeignKey(Fin_Login_Details,on_delete = models.CASCADE)
+    attendance = models.ForeignKey(Fin_Attendances,on_delete=models.CASCADE)
+    date = models.DateField(default = date.today())
+    action = models.CharField(max_length = 100)

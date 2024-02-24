@@ -106,11 +106,11 @@
 
                     <center>
                         <div>
-                            <a class="btn btn-outline-secondary mb-2 text-grey" href='#'><i
+                            <a class="btn btn-outline-secondary mb-2 text-grey" href='#' id="historyview"><i
                                     class="fa-solid fa-clock-rotate-left"></i> History</a>
                             <!-- <button class="btn btn-outline-secondary mb-2 text-grey" onclick="window.location.href='/holiday_history/{{month}}/{{year}}'" ><i class="fa-solid fa-clock-rotate-left"></i> History</button> -->
-                            <button class="btn btn-outline-secondary mb-2 text-grey" id="exportButton"><i
-                                    class="fa fa-table"></i> Export To Excel</button>
+                           <!--<button class="btn btn-outline-secondary mb-2 text-grey" id="exportButton"><i
+                                    class="fa fa-table"></i> Export To Excel</button>-->
                             <button class="btn btn-outline-secondary mb-2 text-grey" onclick="PrintTable()"
                                 data-employee-id="{{employ.id}}" title="Print"><i class="fa fa-print"></i>
                                 Print</button>
@@ -190,13 +190,37 @@
                                 <td>{{i.start_date}}</td>
                                 <td>{{i.end_date}}</td>
                                 <td>
-                                    <form method="post" action="#"> {% csrf_token %}<a href="#"><i style="color: cyan;"
+                                    <form method="post" action="{% url 'Fin_deleteAttendance' id=i.id %}"> {% csrf_token %}<a href="{% url 'Fin_editAttendance' id=i.id %}"><i style="color: cyan;"
                                                 class="fa-solid fa-pen-to-square"></i></a> <input type="text"
                                             name="year" value="{{year}}" hidden> <input name="month" value="{{month}}"
                                             type="text" hidden> <button type="submit"
                                             style="margin-left: 10px;background-color: transparent;border: none;"><i
                                                 style="color: crimson;" class="fa-solid fa-trash"></i></button></form>
                                 </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+
+                    <table class="table ml-3" style="width: 95%;display: none;" id="historyList">
+                       
+                        <thead class="thead">
+                            <tr style="font-size: large; ">
+                                <th>Sl No.</th>
+                                <th>ACTION</th>
+                                <th>Done By</th>
+                                <th>DATE</th>
+                                
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for i in att_history %}
+                            <tr style="font-size: large;">
+
+                                <td style="text-transform: capitalize;">{{i.action}}</td>
+                                <td>{{i.start_date}}</td>
+                                <td>{{i.date}}</td>
+                                
                             </tr>
                             {% endfor %}
                         </tbody>
@@ -442,7 +466,7 @@
     // -------------------------------------------------------------------------------------
     // excel
 
-    document.getElementById('exportButton').addEventListener('click', function () {
+  /*  document.getElementById('exportButton').addEventListener('click', function () {
         exportToExcel('holidayList');
     });
 
@@ -459,7 +483,7 @@
         }
 
         saveAs(new Blob([s2ab(wbout)], { type: 'application/octet-stream' }), 'Holiday_Table.xlsx');
-    }
+    }*/
 
 
 
@@ -595,6 +619,8 @@
     var holidayListLink = document.getElementById("holidayListLink");
     var calendarDiv = document.getElementById("cal");
     var holidayListDiv = document.getElementById("cal_list");
+    var historyList = document.getElementById("historyList");
+    var historyview = document.getElementById("historyview");
 
     holidayListDiv.style.display = "none"; // Hide the holiday list div
     calendarLink.style.backgroundColor = '#213b52';
@@ -622,6 +648,15 @@
 
         calendarLink.style.backgroundColor = 'transparent';
         holidayListLink.style.backgroundColor = '#213b52';
+    });
+
+    historyview.addEventListener("click", function (event) {
+        event.preventDefault(); // Prevent the default behavior of the anchor tag
+        document.getElementById('holidayList').style.display = "none"; // Hide the calendar div
+        historyList.style.display = "block"; // Show the holiday list div
+
+        // Add class to the selected div
+
     });
 
 
