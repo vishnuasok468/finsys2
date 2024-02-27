@@ -2154,3 +2154,23 @@ def Fin_deleteAttendance(request,id):
     leave = Fin_Attendances.objects.get(id = id)
     leave.delete()
     return redirect('Fin_Attendance')
+
+
+def Fin_attendance_history(request):
+    hid = request.POST.get('hid')
+    
+    if 's_id' in request.session:
+        s_id = request.session['s_id']
+        log = Fin_Login_Details.objects.get(id = s_id)
+        if log.User_Type == 'Staff':
+            staff =Fin_Staff_Details.objects.get(Login_Id =log)
+            exists = Fin_Attendance_history.objects.filter(company = staff.company_id,attendance = hid)
+            data = [{'action': item.action, 'date': item.date, 'first_name': item.login_id.First_name, 'last_name': item.login_id.Last_name} for item in exists]
+        if log.User_Type == 'Company':
+            com = Fin_Company_Details.objects.get(Login_Id = log)
+            exists = Fin_Attendance_history.objects.filter(company = com.id,attendance = hid)
+            data = [{'action': item.action, 'date': item.date, 'first_name': item.login_id.First_name, 'last_name': item.login_id.Last_name} for item in exists]
+        print(data)
+
+        return JsonResponse({'data': data})
+    

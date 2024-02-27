@@ -16,6 +16,8 @@
 
 <!-- Include jQuery from a CDN -->
 <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
 
 <!-- Include xlsx library -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.5/xlsx.full.min.js"></script>
@@ -52,7 +54,9 @@
                 border-spacing: 0 10px;
                 font-size: 20px;
             }
-            th,td{
+
+            th,
+            td {
                 text-align: center;
             }
 
@@ -105,20 +109,27 @@
                 <div class="table-responsive">
 
                     <center>
-                        <div>
-                            <a class="btn btn-outline-secondary mb-2 text-grey" href='#' id="historyview"><i
-                                    class="fa-solid fa-clock-rotate-left"></i> History</a>
-                            <!-- <button class="btn btn-outline-secondary mb-2 text-grey" onclick="window.location.href='/holiday_history/{{month}}/{{year}}'" ><i class="fa-solid fa-clock-rotate-left"></i> History</button> -->
-                           <!--<button class="btn btn-outline-secondary mb-2 text-grey" id="exportButton"><i
-                                    class="fa fa-table"></i> Export To Excel</button>-->
+                        <div style="display: flex;margin-left: 40%;align-content: space-between;">
+                            
                             <button class="btn btn-outline-secondary mb-2 text-grey" onclick="PrintTable()"
                                 data-employee-id="{{employ.id}}" title="Print"><i class="fa fa-print"></i>
                                 Print</button>
                             <button class="btn btn-outline-secondary mb-2 text-grey" onclick="ExportAsPDF()"
                                 title="Download PDF"><i class="fa fa-file-pdf"></i> PDF</button>
-                            <button class="btn btn-outline-secondary mb-2 text-grey" type="button" data-toggle="modal"
-                                data-target="#commentModal" title="Comment"><i class="fa fa-comment"></i>
-                                Comment</button>
+
+                            <div class="dropdown">
+                                <button type="button" class="btn btn-outline-secondary mb-2 text-grey" data-toggle="dropdown"><i class="fa-solid fa-share"></i>Share</button>
+                                <div class="dropdown-menu" style="background-color: black;border-radius: 2px;">
+                                    <a class="dropdown-item" href="#"
+                                        style="height: 40px; font-size: 15px; color: white" onclick="shareOnWhatsApp()">
+                                        Whatsapp
+                                    </a>
+                                    <a class="dropdown-item"
+                                        style="height: 40px; font-size: 15px; color: white;cursor: pointer;">Email</a>
+
+                                </div>
+
+                            </div>
                         </div>
                     </center>
                     <!-- modal -->
@@ -167,6 +178,37 @@
                         </div>
                     </div>
                     <!-- modal end -->
+                    <div class="modal fade" id="HistoryModal" tabindex="-1" role="dialog"
+                        aria-labelledby="exampleModalLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="exampleModalLabel">History</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+
+                                <div class="modal-body">
+                                    <table style="align-self: center;width: 100%;" id="historyTable"
+                                        class="table-bordered">
+                                        <tr>
+                                            <th>Sl.No.</th>
+                                            <th>Date</th>
+                                            <th>Action</th>
+                                            <th>Done By</th>
+                                        </tr>
+                                        <tr>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
                     <br><br>
                     <table class="table ml-3" style="width: 95%;" id="holidayList">
@@ -189,42 +231,39 @@
                                 <td style="text-transform: capitalize;">{{i.reason}}</td>
                                 <td>{{i.start_date}}</td>
                                 <td>{{i.end_date}}</td>
-                                <td>
-                                    <form method="post" action="{% url 'Fin_deleteAttendance' id=i.id %}"> {% csrf_token %}<a href="{% url 'Fin_editAttendance' id=i.id %}"><i style="color: cyan;"
-                                                class="fa-solid fa-pen-to-square"></i></a> <input type="text"
-                                            name="year" value="{{year}}" hidden> <input name="month" value="{{month}}"
-                                            type="text" hidden> <button type="submit"
-                                            style="margin-left: 10px;background-color: transparent;border: none;"><i
-                                                style="color: crimson;" class="fa-solid fa-trash"></i></button></form>
+                                <td style="display: flex;align-content: space-between;">
+
+                                    <a href="{% url 'Fin_deleteAttendance' id=i.id %}"><i style="color: crimson;"
+                                            class="fa-solid fa-trash"></i></a>&nbsp;&nbsp;&nbsp;&nbsp;
+                                    <a href="{% url 'Fin_editAttendance' id=i.id %}">
+                                        <i style="color: cyan;" class="fa-solid fa-pen-to-square"></i>
+                                    </a>&nbsp;&nbsp;
+                                    <div class="dropdown" style="margin-top: -7px;">
+                                        <button type="button" class="btn btn-grey" data-toggle="dropdown"><i
+                                                class="fa-solid fa-ellipsis-vertical"></i></button>
+                                        <div class="dropdown-menu" style="background-color: black;border-radius: 2px;">
+                                            <a class="dropdown-item" href="#"
+                                                style="height: 40px; font-size: 15px; color: white" data-toggle="modal"
+                                                data-target="#HistoryModal" id="historyView">
+                                                <option value="{{i.id}}" style="display: none;" id="historyID"></option>
+                                                History
+                                            </a>
+
+
+                                            <a class="dropdown-item"
+                                                style="height: 40px; font-size: 15px; color: white;cursor: pointer;">Comments</a>
+
+                                        </div>
+
+                                    </div>
                                 </td>
                             </tr>
+
                             {% endfor %}
                         </tbody>
                     </table>
 
-                    <table class="table ml-3" style="width: 95%;display: none;" id="historyList">
-                       
-                        <thead class="thead">
-                            <tr style="font-size: large; ">
-                                <th>Sl No.</th>
-                                <th>ACTION</th>
-                                <th>Done By</th>
-                                <th>DATE</th>
-                                
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for i in att_history %}
-                            <tr style="font-size: large;">
 
-                                <td style="text-transform: capitalize;">{{i.action}}</td>
-                                <td>{{i.start_date}}</td>
-                                <td>{{i.date}}</td>
-                                
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
                 </div>
 
             </div>
@@ -237,16 +276,53 @@
 <script>
 
     // -----------------------------------------------
-    // holiday history
+    // Leave history
+
+    $(document).on("click", "#historyView", function () {
+        // Assume 'Some Product' is the title you want to check
+        $.ajax({
+            url: '{% url "Fin_attendance_history" %}',
+            method: 'POST',
+            data: {
+                hid: $("#historyID").val(),
+                csrfmiddlewaretoken: $("input[name = csrfmiddlewaretoken]").val(),
+            },
+
+            success: function (response) {
+                if (response.data.length > 0) {
+                    // Get the table element
+                    var table = document.getElementById("historyTable");
+
+                    // Clear existing rows (except header row)
+                    while (table.rows.length > 1) {
+                        table.deleteRow(1);
+                    }
+
+                    // Populate the table with data
+                    for (var i = 0; i < response.data.length; i++) {
+                        var item = response.data[i];
+                        var row = table.insertRow(-1);
+
+                        // Create cells and populate data
+                        var slNoCell = row.insertCell(0);
+                        var dateCell = row.insertCell(1);
+                        var actionCell = row.insertCell(2);
+                        var doneByCell = row.insertCell(3);
+
+                        slNoCell.innerHTML = i + 1; // Sl.No.
+                        dateCell.innerHTML = item.date; // Date
+                        actionCell.innerHTML = item.action; // Action
+                        doneByCell.innerHTML = item.first_name + " " + item.last_name; // Done By
+                    }
+                }
+            },
+            error: function () {
+                console.error('Error checking product existence.');
+            }
+        });
+    });
 
 
-    function redirectToHolidayHistory(arg1, arg2) {
-        // Construct the URL with the arguments
-        var url = '/holiday_history/' + arg1 + '/' + arg2;
-
-        // Redirect to the constructed URL
-        window.location.href = url;
-    }
 
 
 
@@ -466,24 +542,24 @@
     // -------------------------------------------------------------------------------------
     // excel
 
-  /*  document.getElementById('exportButton').addEventListener('click', function () {
-        exportToExcel('holidayList');
-    });
-
-    function exportToExcel(tableId) {
-        var table = document.getElementById(tableId);
-        var wb = XLSX.utils.table_to_book(table, { sheet: "Sheet1" });
-        var wbout = XLSX.write(wb, { bookType: 'xlsx', bookSST: true, type: 'binary' });
-
-        function s2ab(s) {
-            var buf = new ArrayBuffer(s.length);
-            var view = new Uint8Array(buf);
-            for (var i = 0; i != s.length; ++i) view[i] = s.charCodeAt(i) & 0xFF;
-            return buf;
-        }
-
-        saveAs(new Blob([s2ab(wbout)], { type: 'application/octet-stream' }), 'Holiday_Table.xlsx');
-    }*/
+    /*  document.getElementById('exportButton').addEventListener('click', function () {
+          exportToExcel('holidayList');
+      });
+  
+      function exportToExcel(tableId) {
+          var table = document.getElementById(tableId);
+          var wb = XLSX.utils.table_to_book(table, { sheet: "Sheet1" });
+          var wbout = XLSX.write(wb, { bookType: 'xlsx', bookSST: true, type: 'binary' });
+  
+          function s2ab(s) {
+              var buf = new ArrayBuffer(s.length);
+              var view = new Uint8Array(buf);
+              for (var i = 0; i != s.length; ++i) view[i] = s.charCodeAt(i) & 0xFF;
+              return buf;
+          }
+  
+          saveAs(new Blob([s2ab(wbout)], { type: 'application/octet-stream' }), 'Holiday_Table.xlsx');
+      }*/
 
 
 
@@ -619,8 +695,7 @@
     var holidayListLink = document.getElementById("holidayListLink");
     var calendarDiv = document.getElementById("cal");
     var holidayListDiv = document.getElementById("cal_list");
-    var historyList = document.getElementById("historyList");
-    var historyview = document.getElementById("historyview");
+
 
     holidayListDiv.style.display = "none"; // Hide the holiday list div
     calendarLink.style.backgroundColor = '#213b52';
@@ -649,13 +724,6 @@
         holidayListLink.style.backgroundColor = '#213b52';
     });
 
-    historyview.addEventListener("click", function (event) {
-        event.preventDefault(); // Prevent the default behavior of the anchor tag
-        document.getElementById('holidayList').style.display = "none"; // Hide the calendar div
-        historyList.style.display = "block"; // Show the holiday list div
-
-
-    });
 
 
     // ----------------------------------
@@ -663,6 +731,16 @@
     function goBack() {
         window.history.back();
     }
+
+
+    
+  function shareOnWhatsApp() {
+    var url = window.location.href;
+    var text = url;
+    text = encodeURIComponent(text);
+    var whatsappUrl = "whatsapp://send?text=" + text;
+    window.location.href = whatsappUrl;
+  }
 
 </script>
 
