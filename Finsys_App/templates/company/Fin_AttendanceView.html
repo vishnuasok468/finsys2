@@ -290,10 +290,8 @@
 
             success: function (response) {
                 if (response.data.length > 0) {
-                    // Get the table element
                     var table = document.getElementById("historyTable");
 
-                    // Clear existing rows (except header row)
                     while (table.rows.length > 1) {
                         table.deleteRow(1);
                     }
@@ -303,7 +301,6 @@
                         var item = response.data[i];
                         var row = table.insertRow(-1);
 
-                        // Create cells and populate data
                         var slNoCell = row.insertCell(0);
                         var dateCell = row.insertCell(1);
                         var actionCell = row.insertCell(2);
