@@ -2094,16 +2094,16 @@ def Fin_Attendanceview(request,mn,yr,id):
         if loginn.User_Type == 'Company':
             com = Fin_Company_Details.objects.get(Login_Id = sid)
             events = Holiday.objects.filter(start_date__month=months,start_date__year=year,company_id=com.id)
-            attendance = Fin_Attendances.objects.filter(employee = id,company = com.id)
-            att_history = Fin_Attendance_history.objects.filter(attendance = id,company=com.id)
+            attendance = Fin_Attendances.objects.filter(employee = id,company = com.id,start_date__month=months,start_date__year =year)
+            emp =Employee.objects.get(id=id)
         
         elif loginn.User_Type == 'Staff' :
             com = Fin_Staff_Details.objects.get(Login_Id = sid)
             events = Holiday.objects.filter(start_date__month=months,start_date__year=year,company_id=com.company_id)
-            attendance = Fin_Attendances.objects.filter(employee = id,company = com.company_id)
-            att_history = Fin_Attendance_history.objects.filter(attendance = id,company=com.company_id)
+            attendance = Fin_Attendances.objects.filter(employee = id,company = com.company_id,start_date__month=months,start_date__year =year)
+            emp =Employee.objects.get(id=id)
 
-        return render(request,'company/Fin_AttendanceView.html',{'events':events,'month':month,'year':year,'attendance':attendance,'att_history':att_history})
+        return render(request,'company/Fin_AttendanceView.html',{'events':events,'month':month,'year':year,'attendance':attendance,'emp':emp,'month_name':month_name})
 
 
 def Fin_editAttendance(request,id):
@@ -2157,7 +2157,7 @@ def Fin_deleteAttendance(request,id):
 
 
 def Fin_attendance_history(request):
-    hid = request.POST.get('hid')
+    hid = request.GET.get('hid')
     
     if 's_id' in request.session:
         s_id = request.session['s_id']
@@ -2170,7 +2170,42 @@ def Fin_attendance_history(request):
             com = Fin_Company_Details.objects.get(Login_Id = log)
             exists = Fin_Attendance_history.objects.filter(company = com.id,attendance = hid)
             data = [{'action': item.action, 'date': item.date, 'first_name': item.login_id.First_name, 'last_name': item.login_id.Last_name} for item in exists]
-        print(data)
 
         return JsonResponse({'data': data})
+    
+def Fin_addcommentstoleave(request,id):
+    data = Fin_Attendances.objects.get(id=id)
+    if 's_id' in request.session:
+        if request.method == 'POST':
+            s_id = request.session['s_id']
+            log = Fin_Login_Details.objects.get(id = s_id)
+            if log.User_Type == 'Staff':
+                staff =Fin_Staff_Details.objects.get(Login_Id =log)
+                comment = Fin_attendance_comment(company = staff.company_id, login_id = log, attendance = data, comment = request.POST['comment'])
+                comment.save()
+            if log.User_Type == 'Company':
+                com = Fin_Company_Details.objects.get(Login_Id = log)
+                comment = Fin_attendance_comment(company = com.id, login_id = log, attendance = data, comment = request.POST['comment'])
+                comment.save()
+            return redirect('/')
+        return redirect('/')
+
+
+def Fin_attendancecomments(request):
+    hid = request.GET.get('hid')
+    
+    if 's_id' in request.session:
+        s_id = request.session['s_id']
+        log = Fin_Login_Details.objects.get(id = s_id)
+        if log.User_Type == 'Staff':
+            staff =Fin_Staff_Details.objects.get(Login_Id =log)
+            exists = Fin_attendance_comment.objects.filter(company = staff.company_id,attendance = hid)
+            data = [{'action': item.comment} for item in exists]
+        if log.User_Type == 'Company':
+            com = Fin_Company_Details.objects.get(Login_Id = log)
+            exists = Fin_attendance_comment.objects.filter(company = com.id,attendance = hid)
+            data = [{'action': item.comment} for item in exists]
+        print(data)
+        return JsonResponse({'data': data})
+
     
