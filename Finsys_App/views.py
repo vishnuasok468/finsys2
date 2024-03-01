@@ -1738,24 +1738,7 @@ def Fin_Attendance(request):
         }   
         return render(request,'company/Fin_Attendance.html',context)
 
-def Fin_Add_Attendance(request):
-    if 's_id' in request.session:
-        s_id = request.session['s_id']
-        log = Fin_Login_Details.objects.get(id = s_id)
-        if log.User_Type == 'Staff':
-            staff =Fin_Staff_Details.objects.get(Login_Id =log)
-            emp = Employee.objects.filter(company = staff.company_id,employee_status = 'active')
-            bgroup = Employee_Blood_Group.objects.filter(company = staff.company_id)
-        if log.User_Type == 'Company':
-            com = Fin_Company_Details.objects.get(Login_Id = log)
-            emp = Employee.objects.filter(company = com.id,employee_status = 'active')
-            bgroup = Employee_Blood_Group.objects.filter(company = com.id)
 
-        context ={
-            'emp':emp,'bloodgroup':bgroup
-        }
-        return render(request,'company/Fin_add_attendance.html',context)
-    return redirect('Fin_Attendance')
 
 #from django.http import JsonResponse
 
@@ -2106,7 +2089,7 @@ def Fin_Attendanceview(request,mn,yr,id):
         return render(request,'company/Fin_AttendanceView.html',{'events':events,'month':month,'year':year,'attendance':attendance,'emp':emp,'month_name':month_name})
 
 
-def Fin_editAttendance(request,id):
+def Fin_editAttendance(request,id,mn,yr,pk):
     if 's_id' in request.session:
         s_id = request.session['s_id']
         log = Fin_Login_Details.objects.get(id = s_id)
@@ -2127,7 +2110,7 @@ def Fin_editAttendance(request,id):
                 leave.save()
                 att_history = Fin_Attendance_history(company = staff.company_id,login_id = log,attendance = leave,action = "Edited")
                 att_history.save()
-                return redirect('Fin_Attendance')
+                return redirect('Fin_Attendanceview',mn,yr,pk)
         if log.User_Type == 'Company':
             com = Fin_Company_Details.objects.get(Login_Id = log)
             emp = Employee.objects.filter(company = com.id,employee_status = 'active')
@@ -2143,17 +2126,19 @@ def Fin_editAttendance(request,id):
                 leave.save()
                 att_history = Fin_Attendance_history(company = com.id,login_id = log,attendance = leave,action = "Edited")
                 att_history.save()
-                return redirect('Fin_Attendance')
+                return redirect('Fin_Attendanceview',mn,yr,pk)
             
         context ={
             'emp':emp,'bloodgroup':bgroup,'leave':leave
         }
         return render(request,'company/Fin_attendanceEdit.html',context)
 
-def Fin_deleteAttendance(request,id):
+def Fin_deleteAttendance(request,id,mn,yr,pk):
+    month_name = mn
+    year = yr
     leave = Fin_Attendances.objects.get(id = id)
     leave.delete()
-    return redirect('Fin_Attendance')
+    return redirect('Fin_Attendanceview',month_name,year,pk)
 
 
 def Fin_attendance_history(request):
@@ -2173,7 +2158,9 @@ def Fin_attendance_history(request):
 
         return JsonResponse({'data': data})
     
-def Fin_addcommentstoleave(request,id):
+def Fin_addcommentstoleave(request,id,mn,yr,pk):
+    month_name = mn
+    year = yr
     data = Fin_Attendances.objects.get(id=id)
     if 's_id' in request.session:
         if request.method == 'POST':
@@ -2187,8 +2174,8 @@ def Fin_addcommentstoleave(request,id):
                 com = Fin_Company_Details.objects.get(Login_Id = log)
                 comment = Fin_attendance_comment(company = com.id, login_id = log, attendance = data, comment = request.POST['comment'])
                 comment.save()
-            return redirect('/')
-        return redirect('/')
+            return redirect('Fin_Attendanceview',month_name,year,pk)
+        return redirect('Fin_Attendanceview',month_name,year,pk)
 
 
 def Fin_attendancecomments(request):
@@ -2205,7 +2192,49 @@ def Fin_attendancecomments(request):
             com = Fin_Company_Details.objects.get(Login_Id = log)
             exists = Fin_attendance_comment.objects.filter(company = com.id,attendance = hid)
             data = [{'action': item.comment} for item in exists]
-        print(data)
         return JsonResponse({'data': data})
 
+
+def Fin_shareLeaveStatementToEmail(request,id,mn,yr):
+    if 's_id' in request.session:
+      
+        if request.method == 'POST':
+            emails_string = request.POST['email_ids']
+
+            # Split the string by commas and remove any leading or trailing whitespace
+            emails_list = [email.strip() for email in emails_string.split(',')]
+            email_message = request.POST['email_message']
+            # print(emails_list)
+            month_name = mn
+            months = list(calendar.month_name).index(month_name) 
+
+            year = yr
+            s_id = request.session['s_id']
+            log = Fin_Login_Details.objects.get(id = s_id)
+            emp = Employee.objects.get(id =id)
+
+            if log.User_Type == 'Staff':
+                staff =Fin_Staff_Details.objects.get(Login_Id =log)
+                att = Fin_Attendances.objects.filter(employee = id,company = staff.company_id,start_date__month=months,start_date__year =year)
+                context = {'att': att, 'emp': emp ,'month_name':month_name, 'year':year}
+            if log.User_Type == 'Company':
+                com = Fin_Company_Details.objects.get(Login_Id = log)
+                att = Fin_Attendances.objects.filter(employee = id,company = com.id,start_date__month=months,start_date__year =year)
+                context = {'att': att, 'emp': emp,'month_name':month_name, 'year':year}
+            template_path = 'company/FIn_LeaveTransaction.html'
+            template = get_template(template_path)
+
+            html  = template.render(context)
+            result = BytesIO()
+            pdf = pisa.pisaDocument(BytesIO(html.encode("ISO-8859-1")), result)#, link_callback=fetch_resources)
+            pdf = result.getvalue()
+            filename = f'Leave Statement - {emp.first_name} {emp.last_name}-{month_name},{year}.pdf'
+            subject = f"Leave Statement - {emp.first_name} {emp.last_name}-{month_name},{year}"
+            email = EmailMessage(subject, f"Hi,\nPlease find the attached Leave Statement - of-{emp.first_name} {emp.last_name}. \n{email_message}", from_email=settings.EMAIL_HOST_USER,to=emails_list)
+            email.attach(filename, pdf, "application/pdf")
+            email.send(fail_silently=False)
+
+            msg = messages.success(request, 'Bill has been shared via email successfully..!')
+            return redirect('Fin_Attendanceview',month_name,year,id)
+        
     

@@ -91,11 +91,12 @@ urlpatterns = [
     path('Fin_attendance_save',views.Fin_attendance_save,name='Fin_attendance_save'),
     path('fin_employee_save_atndnce',views.fin_employee_save_atndnce,name='fin_employee_save_atndnce'),
     path('Fin_Attendanceview/<mn>/<yr>/<id>',views.Fin_Attendanceview,name='Fin_Attendanceview'),
-    path('Fin_editAttendance/<id>',views.Fin_editAttendance,name='Fin_editAttendance'),
-    path('Fin_deleteAttendance/<id>',views.Fin_deleteAttendance,name='Fin_deleteAttendance'),
+    path('Fin_editAttendance/<id>/<mn>/<yr>/<pk>',views.Fin_editAttendance,name='Fin_editAttendance'),
+    path('Fin_deleteAttendance/<id>/<mn>/<yr>/<pk>',views.Fin_deleteAttendance,name='Fin_deleteAttendance'),
     path('Fin_attendance_history',views.Fin_attendance_history,name='Fin_attendance_history'),
-    path('Fin_addcommentstoleave/<id>',views.Fin_addcommentstoleave,name='Fin_addcommentstoleave'),
+    path('Fin_addcommentstoleave/<id>/<mn>/<yr>/<pk>',views.Fin_addcommentstoleave,name='Fin_addcommentstoleave'),
     path('Fin_attendancecomments',views.Fin_attendancecomments,name='Fin_attendancecomments'),
+    path('Fin_shareLeaveStatementToEmail/<mn>/<yr>/<id>',views.Fin_shareLeaveStatementToEmail,name='Fin_shareLeaveStatementToEmail'),
 
     path('chumma',views.chumma,name='chumma'),
 

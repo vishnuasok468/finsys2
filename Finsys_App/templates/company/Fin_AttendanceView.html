@@ -81,7 +81,7 @@
 
 
     <div class="card radius-15">
-        <div class="ml-auto"><a style="cursor: pointer;" title="Close" href="#"><i
+        <div class="ml-auto"><a style="cursor: pointer;" title="Close" onclick="goBack()"><i
                     class="fa-solid fa-circle-xmark fa-2xl"></i></a></div>
         <div class="card-body">
 
@@ -111,7 +111,8 @@
                                         Whatsapp
                                     </a>
                                     <a class="dropdown-item"
-                                        style="height: 40px; font-size: 15px; color: white;cursor: pointer;">Email</a>
+                                        style="height: 40px; font-size: 15px; color: white;cursor: pointer;"
+                                        data-toggle="modal" data-target="#shareBillEmail">Email</a>
 
                                 </div>
 
@@ -146,9 +147,9 @@
                                 <td>{{i.end_date}}</td>
                                 <td style="display: flex;align-content: space-between;">
 
-                                    <a href="{% url 'Fin_deleteAttendance' id=i.id %}"><i style="color: crimson;"
+                                    <a href="{% url 'Fin_deleteAttendance' id=i.id mn=month_name yr=year pk=emp.id %}"><i style="color: crimson;"
                                             class="fa-solid fa-trash"></i></a>&nbsp;&nbsp;&nbsp;&nbsp;
-                                    <a href="{% url 'Fin_editAttendance' id=i.id %}">
+                                    <a href="{% url 'Fin_editAttendance' id=i.id mn=month_name yr=year pk=emp.id %}">
                                         <i style="color: cyan;" class="fa-solid fa-pen-to-square"></i>
                                     </a>&nbsp;&nbsp;
                                     <div class="dropdown" style="margin-top: -7px;">
@@ -161,8 +162,6 @@
                                                 onclick="att_history(this.id)">
                                                 History
                                             </a>
-
-
                                             <a class="dropdown-item"
                                                 style="height: 40px; font-size: 15px; color: white;cursor: pointer;"
                                                 data-toggle="modal" data-target="#commentModal{{i.id}}"
@@ -186,7 +185,7 @@
                                                     </button>
                                                 </div>
 
-                                                <form action="{% url 'Fin_addcommentstoleave' i.id %}" method="post">
+                                                <form action="{% url 'Fin_addcommentstoleave' id=i.id mn=month_name yr=year pk=emp.id %}" method="post">
                                                     {% csrf_token %}
                                                     <div class="modal-body">
 
@@ -265,12 +264,86 @@
 
 
         </div>
+        <!-- Share bill Modal -->
+        <div class="modal fade" id="shareBillEmail" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="shareBillEmailLabel">Share Leave Statement Via Email</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                                aria-hidden="true">&times;</span></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="card p-3 m-3">
+                            <form action="{% url 'Fin_shareLeaveStatementToEmail' id=emp.id mn=month_name yr=year %}" method="post" class="needs-validation" id="share_to_email_form"
+                                autocomplete="off">
+                                {% csrf_token %}
+                                <div class="form-group">
+                                    <label for="emailIds">Email IDs</label>
+                                    <textarea class="form-control text-white" name="email_ids" id="emailIds" rows="5"
+                                        placeholder="Multiple emails can be added by separating with a comma(,)."
+                                        required></textarea>
+                                </div>
+                                <div class="form-group mt-2">
+                                    <label for="item_unitname">Message(optional)</label>
+                                    <textarea name="email_message" id="email_message" class="text-white form-control"
+                                        cols="" rows="4"
+                                        placeholder="This message will be sent along with Bill details."></textarea>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="modal-footer d-flex justify-content-center" style="border-top: 1px solid #ffff;">
+                            <input type="submit" id="share_with_email"
+                                class="submitShareEmailBtn rounded-pill text-dark w-50 my-4 mx-3" value="SEND MAIL">
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
 
     </div>
 </div>
 <script>
 
     // -----------------------------------------------
+
+    $(document).ready(function () {
+        $('#share_with_email').on('click', function () {
+            var emailsInput = document.getElementById('emailIds');
+            var emailsString = emailsInput.value.trim();
+
+            var emails = emailsString.split(',').map(function (email) {
+                return email.trim();
+            });
+
+            var emailRegex = /^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/;
+
+            var invalidEmails = []
+            if (emailsString == "") {
+                alert('Enter valid email addresses..')
+            }
+            else {
+                for (var i = 0; i < emails.length; i++) {
+                    var currentEmail = emails[i];
+
+                    if (currentEmail != "" && !emailRegex.test(currentEmail)) {
+                        console.log(currentEmail + ' is invalid!');
+                        invalidEmails.push(currentEmail)
+                    }
+                }
+
+                if (invalidEmails.length > 0) {
+                    alert('Invalid emails..Please check!\n' + invalidEmails)
+                    // alert(invalidEmails)
+                } else {
+                    $('#share_to_email_form').submit();
+                }
+            }
+        })
+    });
+
+
     // Leave history
 
     function leave_comment(id_str) {
