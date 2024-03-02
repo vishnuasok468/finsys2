@@ -1606,6 +1606,8 @@ def Fin_Attendance(request):
             event_counts = {}
             formatted_event_counts = {}
             staff =Fin_Staff_Details.objects.get(Login_Id =log)
+            allmodules = Fin_Modules_List.objects.get(company_id = staff.company_id)
+
             all_events = Fin_Attendances.objects.filter(company=staff.company_id)
             for event in all_events:
                 month_year = event.start_date.strftime('%Y-%m')  # Format: 'YYYY-MM'
@@ -1670,6 +1672,7 @@ def Fin_Attendance(request):
             event_counts = {}
             formatted_event_counts = {}
             com = Fin_Company_Details.objects.get(Login_Id = log)
+            allmodules = Fin_Modules_List.objects.get(company_id = com.id)
             all_events = Fin_Attendances.objects.filter(company=com.id)
             for event in all_events:
                 month_year = event.start_date.strftime('%Y-%m')  # Format: 'YYYY-MM'
@@ -1735,10 +1738,30 @@ def Fin_Attendance(request):
             "events": all_events,
             "event_counts_json": formatted_event_counts,
             'employee_attendance': list(employee_attendance.values()),
+            'allmodules':allmodules
         }   
         return render(request,'company/Fin_Attendance.html',context)
 
+def Fin_Add_Attendance(request):
+    if 's_id' in request.session:
+        s_id = request.session['s_id']
+        log = Fin_Login_Details.objects.get(id = s_id)
+        if log.User_Type == 'Staff':
+            staff =Fin_Staff_Details.objects.get(Login_Id =log)
+            allmodules = Fin_Modules_List.objects.get(company_id = staff.company_id)
+            emp = Employee.objects.filter(company = staff.company_id,employee_status = 'active')
+            bgroup = Employee_Blood_Group.objects.filter(company = staff.company_id)
+        if log.User_Type == 'Company':
+            com = Fin_Company_Details.objects.get(Login_Id = log)
+            allmodules = Fin_Modules_List.objects.get(company_id = com.id)
+            emp = Employee.objects.filter(company = com.id,employee_status = 'active')
+            bgroup = Employee_Blood_Group.objects.filter(company = com.id)
 
+        context ={
+            'emp':emp,'bloodgroup':bgroup,'allmodules':allmodules
+        }
+        return render(request,'company/Fin_add_attendance.html',context)
+    return redirect('Fin_Attendance')
 
 #from django.http import JsonResponse
 
@@ -1778,9 +1801,9 @@ def Fin_attendance_save(request):
 
             if log.User_Type == 'Company':
                 com = Fin_Company_Details.objects.get(Login_Id = log)
-                attendance = Fin_Attendances(start_date= request.POST['sdate'],end_date = request.POST['edate'],status = request.POST['status'],reason = request.POST['reason'],company = com.id,login_id = log,employee = empid)
+                attendance = Fin_Attendances(start_date= request.POST['sdate'],end_date = request.POST['edate'],status = request.POST['status'],reason = request.POST['reason'],company = com,login_id = log,employee = empid)
                 attendance.save()
-                att_history = Fin_Attendance_history(company = com.id,login_id = log,attendance = attendance,action = "Created")
+                att_history = Fin_Attendance_history(company = com,login_id = log,attendance = attendance,action = "Created")
                 att_history.save()
                 return redirect('Fin_Attendance')
         return redirect('Fin_Add_Attendance')
@@ -2077,16 +2100,18 @@ def Fin_Attendanceview(request,mn,yr,id):
         if loginn.User_Type == 'Company':
             com = Fin_Company_Details.objects.get(Login_Id = sid)
             events = Holiday.objects.filter(start_date__month=months,start_date__year=year,company_id=com.id)
+            allmodules = Fin_Modules_List.objects.get(company_id = com.id)
             attendance = Fin_Attendances.objects.filter(employee = id,company = com.id,start_date__month=months,start_date__year =year)
             emp =Employee.objects.get(id=id)
         
         elif loginn.User_Type == 'Staff' :
             com = Fin_Staff_Details.objects.get(Login_Id = sid)
+            allmodules = Fin_Modules_List.objects.get(company_id = com.company_id)
             events = Holiday.objects.filter(start_date__month=months,start_date__year=year,company_id=com.company_id)
             attendance = Fin_Attendances.objects.filter(employee = id,company = com.company_id,start_date__month=months,start_date__year =year)
             emp =Employee.objects.get(id=id)
 
-        return render(request,'company/Fin_AttendanceView.html',{'events':events,'month':month,'year':year,'attendance':attendance,'emp':emp,'month_name':month_name})
+        return render(request,'company/Fin_AttendanceView.html',{'events':events,'month':month,'year':year,'attendance':attendance,'emp':emp,'month_name':month_name,'allmodules':allmodules})
 
 
 def Fin_editAttendance(request,id,mn,yr,pk):
@@ -2097,6 +2122,7 @@ def Fin_editAttendance(request,id,mn,yr,pk):
     
         if log.User_Type == 'Staff':
             staff =Fin_Staff_Details.objects.get(Login_Id =log)
+            allmodules = Fin_Modules_List.objects.get(company_id = staff.company_id)
             emp = Employee.objects.filter(company = staff.company_id,employee_status = 'active')
             bgroup = Employee_Blood_Group.objects.filter(company = staff.company_id)
             if request.method == 'POST':
@@ -2113,6 +2139,7 @@ def Fin_editAttendance(request,id,mn,yr,pk):
                 return redirect('Fin_Attendanceview',mn,yr,pk)
         if log.User_Type == 'Company':
             com = Fin_Company_Details.objects.get(Login_Id = log)
+            allmodules = Fin_Modules_List.objects.get(company_id = com.id)
             emp = Employee.objects.filter(company = com.id,employee_status = 'active')
             bgroup = Employee_Blood_Group.objects.filter(company = com.id)
             if request.method == 'POST':
@@ -2124,12 +2151,12 @@ def Fin_editAttendance(request,id,mn,yr,pk):
                 leave.reason = request.POST['reason']
                 leave.status = request.POST['status']
                 leave.save()
-                att_history = Fin_Attendance_history(company = com.id,login_id = log,attendance = leave,action = "Edited")
+                att_history = Fin_Attendance_history(company = com,login_id = log,attendance = leave,action = "Edited")
                 att_history.save()
                 return redirect('Fin_Attendanceview',mn,yr,pk)
             
         context ={
-            'emp':emp,'bloodgroup':bgroup,'leave':leave
+            'emp':emp,'bloodgroup':bgroup,'leave':leave,'allmodules':allmodules
         }
         return render(request,'company/Fin_attendanceEdit.html',context)
 
@@ -2172,7 +2199,7 @@ def Fin_addcommentstoleave(request,id,mn,yr,pk):
                 comment.save()
             if log.User_Type == 'Company':
                 com = Fin_Company_Details.objects.get(Login_Id = log)
-                comment = Fin_attendance_comment(company = com.id, login_id = log, attendance = data, comment = request.POST['comment'])
+                comment = Fin_attendance_comment(company = com, login_id = log, attendance = data, comment = request.POST['comment'])
                 comment.save()
             return redirect('Fin_Attendanceview',month_name,year,pk)
         return redirect('Fin_Attendanceview',month_name,year,pk)
