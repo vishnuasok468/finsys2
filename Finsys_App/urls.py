@@ -97,6 +97,7 @@ urlpatterns = [
     path('Fin_addcommentstoleave/<id>/<mn>/<yr>/<pk>',views.Fin_addcommentstoleave,name='Fin_addcommentstoleave'),
     path('Fin_attendancecomments',views.Fin_attendancecomments,name='Fin_attendancecomments'),
     path('Fin_shareLeaveStatementToEmail/<mn>/<yr>/<id>',views.Fin_shareLeaveStatementToEmail,name='Fin_shareLeaveStatementToEmail'),
+    path('employee_blood_group',views.employee_blood_group,name='employee_blood_group'),
 
     path('chumma',views.chumma,name='chumma'),
 

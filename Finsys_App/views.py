@@ -2264,4 +2264,28 @@ def Fin_shareLeaveStatementToEmail(request,id,mn,yr):
             msg = messages.success(request, 'Bill has been shared via email successfully..!')
             return redirect('Fin_Attendanceview',month_name,year,id)
         
-    
+def employee_blood_group(request):
+    if request.method == 'POST':
+        bloodGroup = request.POST.get('bloodGroup', '').upper()
+        sid = request.session.get('s_id')
+        loginn = Fin_Login_Details.objects.get(id=sid)
+        invalid_group = ['A+', 'A-', 'B+', 'O+']
+
+        if loginn.User_Type == 'Company' and bloodGroup not in invalid_group:
+            com = Fin_Company_Details.objects.get(Login_Id=sid)
+            
+            allmodules = Fin_Modules_List.objects.get(company_id=com.id)
+            group = Employee_Blood_Group(blood_group=bloodGroup, company_id=com.id, login_id=sid)
+            group.save()
+            bloodgroup = Employee_Blood_Group.objects.filter(company_id=com.id,login_id=sid).values('blood_group').distinct()
+            return JsonResponse({'success': True,'bloodgroup': list(bloodgroup)})
+
+        elif loginn.User_Type == 'Staff' and bloodGroup not in invalid_group:
+            com = Fin_Staff_Details.objects.get(Login_Id = sid)
+            allmodules = Fin_Modules_List.objects.get(company_id=com.company_id)
+            group = Employee_Blood_Group(blood_group=bloodGroup, company_id=com.company_id, login_id=sid)
+            group.save()
+            bloodgroup = Employee_Blood_Group.objects.filter(company_id=com.company_id,login_id=sid).values('blood_group').distinct()
+            return JsonResponse({'success': True,'bloodgroup': list(bloodgroup)})
+
+    return JsonResponse({'success': False, 'error': 'Invalid blood group or user type'})
