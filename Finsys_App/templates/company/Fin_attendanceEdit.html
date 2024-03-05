@@ -1147,13 +1147,10 @@
 
     // -------------------------------------
 
-    // calculate salary amount in time base 
     function calculateAndSetSalary() {
-        // Get values from amount_perhour and working_hours
         var firstValue = parseFloat($('#amount_perhour').val()) || 0;
         var secondValue = parseFloat($('#working_hours').val()) || 0;
 
-        // Check if both values are greater than 0
         if (firstValue > 0 && secondValue > 0) {
             // Perform calculations and set the value for salary_amount2
             var thirdValue = firstValue * secondValue;
