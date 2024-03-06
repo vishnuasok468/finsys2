@@ -509,7 +509,6 @@
                                     // Assuming you have a select element with the id 'bloodGroupSelect'
                                     var bloodGroupSelect = $('#bloodGroupSelect');
 
-                                    // Append the new static option
                                     bloodGroupSelect.append($('<option>', {
                                         value: value,
                                         text: text
@@ -638,17 +637,14 @@
                         $(document).ready(function () {
 
 
-                            // Handle checkbox click event
                             $('#addressCheckBox').on('change', function () {
                                 if ($(this).is(':checked')) {
-                                    // Copy values from permanent address to temporary address
                                     $('#temStreet').val($('#perStreet').val());
                                     $('#temCity').val($('#perCity').val());
                                     $('#temState').val($('#perState').val());
                                     $('#temPincode').val($('#perPincode').val());
                                     $('#temCountry').val($('#perCountry').val());
 
-                                    // Show temporary address
                                     $('#temAddress').show();
                                 }
                             });
