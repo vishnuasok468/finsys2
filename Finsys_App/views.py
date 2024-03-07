@@ -2087,6 +2087,8 @@ def fin_employee_save_atndnce(request):
         return redirect('Fin_Add_Attendance')
     
 
+
+
 def Fin_Attendanceview(request,mn,yr,id):
     if 's_id' in request.session:
         month_name = mn
@@ -2126,8 +2128,8 @@ def Fin_editAttendance(request,id,mn,yr,pk):
             emp = Employee.objects.filter(company = staff.company_id,employee_status = 'active')
             bgroup = Employee_Blood_Group.objects.filter(company = staff.company_id)
             if request.method == 'POST':
-                emp = request.POST['emp']
-                empid = Employee.objects.get(id = emp)
+                emps = request.POST['empS']
+                empid = Employee.objects.get(id = emps)
                 leave.employee = empid
                 leave.start_date = request.POST['sdate']
                 leave.end_date = request.POST['edate']
@@ -2143,8 +2145,8 @@ def Fin_editAttendance(request,id,mn,yr,pk):
             emp = Employee.objects.filter(company = com.id,employee_status = 'active')
             bgroup = Employee_Blood_Group.objects.filter(company = com.id)
             if request.method == 'POST':
-                emp = request.POST['emp']
-                empid = Employee.objects.get(id = emp)
+                emps = request.POST['empS']
+                empid = Employee.objects.get(id = emps)
                 leave.employee = empid
                 leave.start_date = request.POST['sdate']
                 leave.end_date = request.POST['edate']
@@ -2156,9 +2158,282 @@ def Fin_editAttendance(request,id,mn,yr,pk):
                 return redirect('Fin_Attendanceview',mn,yr,pk)
             
         context ={
-            'emp':emp,'bloodgroup':bgroup,'leave':leave,'allmodules':allmodules
+            'emp':emp,'bloodgroup':bgroup,'leave':leave,'allmodules':allmodules,'mn':mn,'yr':yr,'pk':pk
         }
         return render(request,'company/Fin_attendanceEdit.html',context)
+
+def fin_employee_save_atndnce_EDIT(request,mn,yr,pk):
+
+    if request.method == 'POST':
+
+        title = request.POST['Title']
+        firstname = request.POST['First_Name'].capitalize()
+        lastname = request.POST['Last_Name'].capitalize()
+        image = request.FILES.get('Image', None)
+        if image:
+            image = request.FILES['Image']
+        else:
+            image = ''
+        alias = request.POST['Alias']
+        joiningdate = request.POST['Joining_Date']
+        salarydate = request.POST['Salary_Date']
+        salary_type = request.POST['Salary_Type']
+
+        amountperhour = request.POST['perhour']
+        if amountperhour == '' or amountperhour == '0':
+            amountperhour = 0
+        else:
+            amountperhour = request.POST['perhour']
+
+        workinghour = request.POST['workhour']
+        if workinghour == '' or workinghour == '0':
+            workinghour = 0
+        else:
+            workinghour = request.POST['workhour']
+
+        salaryamount = request.POST['Salary_Amount']
+        if request.POST['Salary_Amount'] == '':
+            salaryamount = None
+        else:
+            salaryamount = request.POST['Salary_Amount']
+
+        employeenumber = request.POST['Employee_Number']
+        designation = request.POST['Designation']
+        location = request.POST['Location']
+        gender = request.POST['Gender']
+        dob = request.POST['DOB']
+        blood = request.POST['Blood']
+        contact = request.POST['Contact_Number']
+        emergencycontact = request.POST['Emergency_Contact']
+        email = request.POST['Email']
+        parent = request.POST['Parent'].capitalize()
+        spouse = request.POST['Spouse'].capitalize()
+        file = request.FILES.get('File', None)
+        if file:
+            file = request.FILES['File']
+        else:
+            file=''
+        street = request.POST['street']
+        city = request.POST['city']
+        state = request.POST['state']
+        pincode = request.POST['pincode']
+        country = request.POST['country']
+        tempStreet = request.POST['tempStreet']
+        tempCity = request.POST['tempCity']
+        tempState = request.POST['tempState']
+        tempPincode = request.POST['tempPincode']
+        tempCountry = request.POST['tempCountry']
+        
+        bankdetails = request.POST['Bank_Details']
+        if bankdetails == "Yes":
+            accoutnumber = request.POST['Account_Number']
+            ifsc = request.POST['IFSC']
+            bankname = request.POST['BankName']
+            branchname = request.POST['BranchName']
+            transactiontype = request.POST['Transaction_Type']
+        else:
+            accoutnumber = ''
+            ifsc = ''
+            bankname = ''
+            branchname = ''
+            transactiontype = ''
+
+        if request.POST['tds_applicable'] == 'Yes':
+            tdsapplicable = request.POST['tds_applicable']
+            tdstype = request.POST['TDS_Type']
+            
+            if tdstype == 'Amount':
+                tdsvalue = request.POST['TDS_Amount']
+            elif tdstype == 'Percentage':
+                tdsvalue = request.POST['TDS_Percentage']
+            else:
+                tdsvalue = 0
+        elif request.POST['tds_applicable'] == 'No':
+            tdsvalue = 0
+            tdstype = ''
+            tdsapplicable = request.POST['tds_applicable']
+        else:
+            tdsvalue = 0
+            tdstype = ''
+            tdsapplicable = ''
+
+        incometax = request.POST['Income_Tax']
+        aadhar = request.POST['Aadhar']
+        uan = request.POST['UAN']
+        pf = request.POST['PF']
+        pan = request.POST['PAN']
+        pr = request.POST['PR']
+
+        if dob == '':
+            age = 2
+        else:
+            dob2 = date.fromisoformat(dob)
+            today = date.today()
+            age = int(today.year - dob2.year - ((today.month, today.day) < (dob2.month, dob2.day)))
+        
+        sid = request.session['s_id']
+        employee = Fin_Login_Details.objects.get(id=sid)
+        
+        if employee.User_Type == 'Company':
+            companykey =  Fin_Company_Details.objects.get(Login_Id_id=sid)
+        elif employee.User_Type == 'Staff':
+            staffkey = Fin_Staff_Details.objects.get(Login_Id=sid)
+            companykey = Fin_Company_Details.objects.get(id=staffkey.company_id_id)
+        else:
+            distributorkey = Fin_Distributors_Details.objects.get(login_Id=sid)
+            companykey = Fin_Company_Details.objects.get(id=distributorkey.company_id_id)
+
+        
+        if Employee.objects.filter(employee_mail=email,mobile = contact,employee_number=employeenumber,company_id = companykey.id).exists():
+            messages.error(request,'user exist')
+            return redirect('Fin_editAttendance',mn,yr,pk)
+        
+        elif Employee.objects.filter(mobile = contact,company_id = companykey.id).exists():
+            messages.error(request,'phone number exist')
+            return redirect('Fin_editAttendance',mn,yr,pk)
+        
+        elif Employee.objects.filter(emergency_contact = emergencycontact,company_id = companykey.id).exists():
+            messages.error(request,'emergency phone number exist')
+            return redirect('Fin_editAttendance',mn,yr,pk)
+        
+        elif Employee.objects.filter(employee_mail=email,company_id = companykey.id).exists():
+            messages.error(request,'email exist')
+            return redirect('Fin_editAttendance',mn,yr,pk)
+        
+        elif Employee.objects.filter(employee_number=employeenumber,company_id = companykey.id).exists():
+            messages.error(request,'employee id exist')
+            return redirect('Fin_editAttendance',mn,yr,pk)
+        
+        elif incometax != '' and Employee.objects.filter(income_tax_number = incometax,company_id = companykey.id).exists():
+            messages.error(request,'Income Tax Number exist')
+            return redirect('Fin_editAttendance',mn,yr,pk)
+        
+        elif pf != '' and Employee.objects.filter(pf_account_number = pf,company_id = companykey.id).exists():
+            messages.error(request,'PF account number exist')
+            return redirect('Fin_editAttendance',mn,yr,pk)
+        
+        elif aadhar != '' and Employee.objects.filter(aadhar_number = aadhar,company_id = companykey.id).exists():
+            messages.error(request,'Aadhar number exist')
+            return redirect('Fin_editAttendance',mn,yr,pk)
+        
+        elif pan != '' and Employee.objects.filter(pan_number = pan,company_id = companykey.id).exists():
+            messages.error(request,'PAN number exist')
+            return redirect('Fin_editAttendance',mn,yr,pk)
+        
+        elif uan != '' and Employee.objects.filter(universal_account_number = uan,company_id = companykey.id).exists():
+            messages.error(request,'Universal account number exist')
+            return redirect('Fin_editAttendance',mn,yr,pk)
+        
+        elif pr != '' and Employee.objects.filter(pr_account_number = pr,company_id = companykey.id).exists():
+            messages.error(request,'PR account number exist')
+            return redirect('Fin_editAttendance',mn,yr,pk)
+        
+        elif bankdetails.lower() == 'yes':
+            if accoutnumber != '' and Employee.objects.filter(account_number=accoutnumber,company_id = companykey.id).exists():
+                messages.error(request,'Bank account number already exist')
+                return redirect('Fin_editAttendance',mn,yr,pk)
+            
+            else:
+                if employee.User_Type == 'Company':
+                    
+
+                    new = Employee(upload_image=image,title = title,first_name = firstname,last_name = lastname,alias = alias,
+                            employee_mail = email,employee_number = employeenumber,employee_designation = designation,
+                            employee_current_location = location,mobile = contact,date_of_joining = joiningdate,
+                            employee_status = 'Active' ,company_id = companykey.id,login_id=sid,salary_amount = salaryamount ,
+                            amount_per_hour = amountperhour ,total_working_hours = workinghour,gender = gender ,date_of_birth = dob ,
+                            age = age,blood_group = blood,fathers_name_mothers_name = parent,spouse_name = spouse,
+                            emergency_contact = emergencycontact,provide_bank_details = bankdetails,account_number = accoutnumber,
+                            ifsc = ifsc,name_of_bank = bankname,branch_name = branchname,bank_transaction_type = transactiontype,
+                            tds_applicable = tdsapplicable, tds_type = tdstype,percentage_amount = tdsvalue,pan_number = pan,
+                            income_tax_number = incometax,aadhar_number = aadhar,universal_account_number = uan,pf_account_number = pf,
+                            pr_account_number = pr,upload_file = file,employee_salary_type =salary_type,salary_effective_from=salarydate,
+                            city=city,street=street,state=state,country=country,pincode=pincode,temporary_city=tempCity,
+                            temporary_street=tempStreet,temporary_state=tempState,temporary_pincode=tempPincode,temporary_country=tempCountry)
+                    new.save()
+
+                    history = Employee_History(company_id = companykey.id,login_id=sid,employee_id = new.id,date = date.today(),action = 'Created')
+                    history.save()
+            
+                elif employee.User_Type == 'Staff':
+                    
+
+                    new =  Employee(upload_image=image,title = title,first_name = firstname,last_name = lastname,alias = alias,
+                                employee_mail = email,employee_number = employeenumber,employee_designation = designation,
+                                employee_current_location = location,mobile = contact,date_of_joining = joiningdate,
+                                employee_salary_type = salary_type,employee_status = 'Active' ,company_id = companykey.id,login_id=sid ,
+                                amount_per_hour = amountperhour ,total_working_hours = workinghour,gender = gender ,date_of_birth = dob ,
+                                age = age,blood_group = blood,fathers_name_mothers_name = parent,spouse_name = spouse,
+                                emergency_contact = emergencycontact,provide_bank_details = bankdetails,account_number = accoutnumber,
+                                ifsc = ifsc,name_of_bank = bankname,branch_name = branchname,bank_transaction_type = transactiontype,
+                                tds_applicable = tdsapplicable, tds_type = tdstype,percentage_amount = tdsvalue,pan_number = pan,
+                                income_tax_number = incometax,aadhar_number = aadhar,universal_account_number = uan,pf_account_number = pf,
+                                pr_account_number = pr,upload_file = file,salary_amount = salaryamount,salary_effective_from=salarydate,
+                                city=city,street=street,state=state,country=country,pincode=pincode,temporary_city=tempCity,
+                                temporary_street=tempStreet,temporary_state=tempState,temporary_pincode=tempPincode,temporary_country=tempCountry)
+                    
+                    new.save()
+
+                    history = Employee_History(company_id = companykey.id,login_id=sid,employee_id = new.id,date = date.today(),action = 'Created')
+                    history.save()
+        
+        else:
+            if employee.User_Type == 'Company':
+                
+
+                new = Employee(upload_image=image,title = title,first_name = firstname,last_name = lastname,alias = alias,
+                        employee_mail = email,employee_number = employeenumber,employee_designation = designation,
+                        employee_current_location = location,mobile = contact,date_of_joining = joiningdate,
+                        employee_status = 'Active' ,company_id = companykey.id,login_id=sid,salary_amount = salaryamount ,
+                        amount_per_hour = amountperhour ,total_working_hours = workinghour,gender = gender ,date_of_birth = dob ,
+                        age = age,blood_group = blood,fathers_name_mothers_name = parent,spouse_name = spouse,
+                        emergency_contact = emergencycontact,provide_bank_details = bankdetails,account_number = accoutnumber,
+                        ifsc = ifsc,name_of_bank = bankname,branch_name = branchname,bank_transaction_type = transactiontype,
+                        tds_applicable = tdsapplicable, tds_type = tdstype,percentage_amount = tdsvalue,pan_number = pan,
+                        income_tax_number = incometax,aadhar_number = aadhar,universal_account_number = uan,pf_account_number = pf,
+                        pr_account_number = pr,upload_file = file,employee_salary_type =salary_type,salary_effective_from=salarydate,
+                        city=city,street=street,state=state,country=country,pincode=pincode,temporary_city=tempCity,
+                        temporary_street=tempStreet,temporary_state=tempState,temporary_pincode=tempPincode,temporary_country=tempCountry)
+                new.save()
+
+                history = Employee_History(company_id = companykey.id,login_id=sid,employee_id = new.id,date = date.today(),action = 'Created')
+                history.save()
+        
+            elif employee.User_Type == 'Staff':
+                
+
+                new =  Employee(upload_image=image,title = title,first_name = firstname,last_name = lastname,alias = alias,
+                            employee_mail = email,employee_number = employeenumber,employee_designation = designation,
+                            employee_current_location = location,mobile = contact,date_of_joining = joiningdate,
+                            employee_salary_type = salary_type,employee_status = 'Active' ,company_id = companykey.id,login_id=sid ,
+                            amount_per_hour = amountperhour ,total_working_hours = workinghour,gender = gender ,date_of_birth = dob ,
+                            age = age,blood_group = blood,fathers_name_mothers_name = parent,spouse_name = spouse,
+                            emergency_contact = emergencycontact,provide_bank_details = bankdetails,account_number = accoutnumber,
+                            ifsc = ifsc,name_of_bank = bankname,branch_name = branchname,bank_transaction_type = transactiontype,
+                            tds_applicable = tdsapplicable, tds_type = tdstype,percentage_amount = tdsvalue,pan_number = pan,
+                            income_tax_number = incometax,aadhar_number = aadhar,universal_account_number = uan,pf_account_number = pf,
+                            pr_account_number = pr,upload_file = file,salary_amount = salaryamount,salary_effective_from=salarydate,
+                            city=city,street=street,state=state,country=country,pincode=pincode,temporary_city=tempCity,
+                            temporary_street=tempStreet,temporary_state=tempState,temporary_pincode=tempPincode,temporary_country=tempCountry)
+                
+                new.save()
+
+                history = Employee_History(company_id = companykey.id,login_id=sid,employee_id = new.id,date = date.today(),action = 'Created')
+                history.save()
+
+        sid = request.session['s_id']
+        loginn = Fin_Login_Details.objects.get(id=sid)
+        if loginn.User_Type == 'Company':
+            com = Fin_Company_Details.objects.get(Login_Id = sid)
+            allmodules = Fin_Modules_List.objects.get(company_id = com.id)
+            employee = Employee.objects.filter(company_id=com.id)
+            
+        elif loginn.User_Type == 'Staff' :
+            com = Fin_Staff_Details.objects.get(Login_Id = sid)
+            allmodules = Fin_Modules_List.objects.get(company_id = com.company_id_id)
+            employee = Employee.objects.filter(company_id=com.company_id_id)
+        return redirect('Fin_editAttendance',mn,yr,pk)
+    
 
 def Fin_deleteAttendance(request,id,mn,yr,pk):
     month_name = mn
