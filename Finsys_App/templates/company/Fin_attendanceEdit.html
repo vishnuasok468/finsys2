@@ -958,7 +958,6 @@
             headers: { "X-CSRFToken": "{{ csrf_token }}" },
 
             data: {
-                //csrfmiddlewaretoken: '{{ csrf_token }}',
                 Title: $('#title').val(),
                 First_Name: $('#firstname').val(),
                 Last_Name: $('#lastname').val(),
@@ -1033,7 +1032,6 @@
                 </button>
             </div>
             <div class="modal-body">
-                <!-- Modal content goes here -->
                 <form id="bloodGroupForm" method="post">
                     {% csrf_token %}
 
@@ -1070,19 +1068,6 @@
 
 
 
-    // -------------------------------------
-
-
-    /*var today = new Date();
-    var yyyy = today.getFullYear();
-    var mm = String(today.getMonth() + 1).padStart(2, '0');
-    var dd = String(today.getDate()).padStart(2, '0');
-    var todayFormatted = yyyy + '-' + mm + '-' + dd;
-
-    document.getElementById("sdate").value = todayFormatted;
-    document.getElementById("edate").value = todayFormatted;*/
-
-    // -------------------------------------
 
     $(document).on("input", "#sdate", function () {
 
