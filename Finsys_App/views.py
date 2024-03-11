@@ -2127,6 +2127,26 @@ def Fin_editAttendance(request,id,mn,yr,pk):
             allmodules = Fin_Modules_List.objects.get(company_id = staff.company_id)
             emp = Employee.objects.filter(company = staff.company_id,employee_status = 'active')
             bgroup = Employee_Blood_Group.objects.filter(company = staff.company_id)
+            
+        if log.User_Type == 'Company':
+            com = Fin_Company_Details.objects.get(Login_Id = log)
+            allmodules = Fin_Modules_List.objects.get(company_id = com.id)
+            emp = Employee.objects.filter(company = com.id,employee_status = 'active')
+            bgroup = Employee_Blood_Group.objects.filter(company = com.id)
+            
+        context ={
+            'emp':emp,'bloodgroup':bgroup,'leave':leave,'allmodules':allmodules,'mn':mn,'yr':yr,'pk':pk
+        }
+        return render(request,'company/Fin_attendanceEdit.html',context)
+
+def Fin_editAttendanceVIEW(request,id,mn,yr,pk):
+    if 's_id' in request.session:
+        s_id = request.session['s_id']
+        log = Fin_Login_Details.objects.get(id = s_id)
+        leave = Fin_Attendances.objects.get(id=id)
+    
+        if log.User_Type == 'Staff':
+            staff =Fin_Staff_Details.objects.get(Login_Id =log)
             if request.method == 'POST':
                 emps = request.POST['empS']
                 empid = Employee.objects.get(id = emps)
@@ -2141,9 +2161,6 @@ def Fin_editAttendance(request,id,mn,yr,pk):
                 return redirect('Fin_Attendanceview',mn,yr,pk)
         if log.User_Type == 'Company':
             com = Fin_Company_Details.objects.get(Login_Id = log)
-            allmodules = Fin_Modules_List.objects.get(company_id = com.id)
-            emp = Employee.objects.filter(company = com.id,employee_status = 'active')
-            bgroup = Employee_Blood_Group.objects.filter(company = com.id)
             if request.method == 'POST':
                 emps = request.POST['empS']
                 empid = Employee.objects.get(id = emps)
@@ -2157,11 +2174,6 @@ def Fin_editAttendance(request,id,mn,yr,pk):
                 att_history.save()
                 return redirect('Fin_Attendanceview',mn,yr,pk)
             
-        context ={
-            'emp':emp,'bloodgroup':bgroup,'leave':leave,'allmodules':allmodules,'mn':mn,'yr':yr,'pk':pk
-        }
-        return render(request,'company/Fin_attendanceEdit.html',context)
-
 def fin_employee_save_atndnce_EDIT(request,mn,yr,pk):
 
     if request.method == 'POST':

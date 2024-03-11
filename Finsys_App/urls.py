@@ -99,6 +99,7 @@ urlpatterns = [
     path('employee_blood_group',views.employee_blood_group,name='employee_blood_group'),
     path('Fin_editAttendance/<mn>/<yr>/<id>/<pk>',views.Fin_editAttendance,name='Fin_editAttendance'),
     path('fin_employee_save_atndnce_EDIT/<mn>/<yr>/<pk>',views.fin_employee_save_atndnce_EDIT,name='fin_employee_save_atndnce_EDIT'),
+    path('Fin_editAttendanceVIEW/<mn>/<yr>/<id>/<pk>',views.Fin_editAttendanceVIEW,name='Fin_editAttendanceVIEW'),
 
     path('chumma',views.chumma,name='chumma'),
 

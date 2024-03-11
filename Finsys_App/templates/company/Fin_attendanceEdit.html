@@ -53,7 +53,8 @@
                     </div>
                 </div>
             </div>
-            <form action="#" method="post" class="needs-validation" validate>
+            <form action="{% url 'Fin_editAttendanceVIEW' id=leave.id mn=mn yr=yr pk=pk %}" method="post"
+                class="needs-validation" validate>
                 {% csrf_token %}
                 <div class="row">
                     <div class="col-md-12 mx-0">
@@ -173,13 +174,26 @@
                                 </div>
                             </tr>
                         </div>
-                        <div class="col-md-4 ">
-                            <label for="image" class="ml-5 mt-5"
-                                style="cursor:pointer; padding: 20% 35%; background-image: url('static/assets/images/upload.png'); background-repeat: no-repeat; background-size: contain;"></label>
+                        <div class="col-md-4 " id="fileffff">
+                            <!--<label for="image" class="ml-5 mt-5"
+                                style="cursor:pointer; padding: 20% 35%; background-image: url('C:\Users\vishn\OneDrive\Desktop\Finsys_2.0\Finsys_2.0\Finsys\static\assets\images\upload.png'); background-repeat: no-repeat; background-size: contain;"></label>-->
+                            <img src="{% static 'C:\Users\vishn\OneDrive\Desktop\Finsys_2.0\Finsys_2.0\Finsys\static\assets\images\upload.png' %}"
+                                alt="" width="40%" class="ml-5 mt-5" style="cursor:pointer; ">
                             <br> <span class="ml-5">Upload Image</span>
                             <input type="file" id="image" accept="image/*" style="display: none;">
                         </div>
+                        <script>
+                            // Get a reference to the div element
+                            const divElement = document.getElementById('fileffff');
 
+                            // Add a click event listener
+                            divElement.addEventListener('click', () => {
+                                // Your code to open the files goes here
+                                // For example, you can trigger a file input click event
+                                const fileInput = document.getElementById('image');
+                                fileInput.click();
+                            });
+                        </script>
                     </div> <br>
                     <div class="row">
                         <div class="col">
@@ -1055,16 +1069,7 @@
 
 
 <script>
-    // Get a reference to the div element
-    const divElement = document.getElementById('fileffff');
 
-    // Add a click event listener
-    divElement.addEventListener('click', () => {
-        // Your code to open the files goes here
-        // For example, you can trigger a file input click event
-        const fileInput = document.getElementById('image');
-        fileInput.click();
-    });
 
 
 
