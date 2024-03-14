@@ -1787,30 +1787,67 @@ def Fin_Holiday_check_for_attendance(request):
 def Fin_attendance_save(request):
     if 's_id' in request.session:
         if request.method == 'POST':
+            flag = 0
+            flags = 0
             s_id = request.session['s_id']
             emp = request.POST['emp']
             empid = Employee.objects.get(id = emp)
             log = Fin_Login_Details.objects.get(id = s_id)
             if log.User_Type == 'Staff':
                 staff =Fin_Staff_Details.objects.get(Login_Id =log)
-                attendance = Fin_Attendances(employee = empid,start_date= request.POST['sdate'],end_date = request.POST['edate'],status = request.POST['status'],reason = request.POST['reason'],company = staff.company_id,login_id = log)
-                attendance.save()
-                att_history = Fin_Attendance_history(company = staff.company_id,login_id = log,attendance = attendance,action = "Created")
-                att_history.save()
-                return redirect('Fin_Attendance')
-
+                att = Fin_Attendances.objects.filter(company = staff.company_id,employee =empid)
+                holi = Holiday.objects.filter(company = staff.company_id)
+                for i in holi:
+                    if i.start_date <= datetime.strptime(request.POST['sdate'], "%Y-%m-%d").date() <= i.end_date or i.start_date <= datetime.strptime(request.POST['edate'], "%Y-%m-%d").date() <= i.end_date:
+                        flags = 1
+                        break
+                for i in att:
+                    if i.start_date <= datetime.strptime(request.POST['sdate'], "%Y-%m-%d").date() <= i.end_date or i.start_date <= datetime.strptime(request.POST['edate'], "%Y-%m-%d").date() <= i.end_date:
+                        flag = 1
+                        break    
+                if flag == 0:
+                    if flags == 0:
+                        attendance = Fin_Attendances(employee = empid,start_date= request.POST['sdate'],end_date = request.POST['edate'],status = request.POST['status'],reason = request.POST['reason'],company = staff.company_id,login_id = log)
+                        attendance.save()
+                        att_history = Fin_Attendance_history(company = staff.company_id,login_id = log,attendance = attendance,action = "Created")
+                        att_history.save()
+                        return redirect('Fin_Attendance')
+                    else:
+                        messages.error(request,"It's a Holiday")
+                        return redirect('Fin_Add_Attendance')
+                else:
+                    messages.error(request,"leave already marked")
+                    return redirect('Fin_Add_Attendance')
             if log.User_Type == 'Company':
                 com = Fin_Company_Details.objects.get(Login_Id = log)
-                attendance = Fin_Attendances(start_date= request.POST['sdate'],end_date = request.POST['edate'],status = request.POST['status'],reason = request.POST['reason'],company = com,login_id = log,employee = empid)
-                attendance.save()
-                att_history = Fin_Attendance_history(company = com,login_id = log,attendance = attendance,action = "Created")
-                att_history.save()
-                return redirect('Fin_Attendance')
+                att = Fin_Attendances.objects.filter(company = com.id,employee =empid)
+                holi = Holiday.objects.filter(company = com.id)
+                for i in holi:
+                    if i.start_date <= datetime.strptime(request.POST['sdate'], "%Y-%m-%d").date() <= i.end_date or i.start_date <= datetime.strptime(request.POST['edate'], "%Y-%m-%d").date() <= i.end_date:
+                        flags = 1
+                        break
+                for i in att:
+                    if i.start_date <= datetime.strptime(request.POST['sdate'], "%Y-%m-%d").date() <= i.end_date or i.start_date <= datetime.strptime(request.POST['edate'], "%Y-%m-%d").date() <= i.end_date:
+                        flag = 1
+                        break
+                if flag == 0:
+                    if flags == 0:
+                        attendance = Fin_Attendances(start_date= request.POST['sdate'],end_date = request.POST['edate'],status = request.POST['status'],reason = request.POST['reason'],company = com,login_id = log,employee = empid)
+                        attendance.save()
+                        att_history = Fin_Attendance_history(company = com,login_id = log,attendance = attendance,action = "Created")
+                        att_history.save()
+                        return redirect('Fin_Attendance')
+                    else:
+                        messages.error(request,"It's a Holiday")
+                        return redirect('Fin_Add_Attendance')
+                else:
+                    messages.error(request,"leave already marked")
+                    return redirect('Fin_Add_Attendance')
         return redirect('Fin_Add_Attendance')
     return redirect('Fin_Add_Attendance')
 
 def chumma(request):
-    return render(request,'company/chumma.html')
+    return render(request,'company/Fin_View_Invoice.html')
 
 
 
@@ -2093,8 +2130,10 @@ def Fin_Attendanceview(request,mn,yr,id):
     if 's_id' in request.session:
         month_name = mn
         months = list(calendar.month_name).index(month_name) 
+        num_days = calendar.monthrange(int(yr), months)[1]
         month = months - 1
-
+        events_count = 0
+        attendance_count = 0
         year = yr
     
         sid = request.session['s_id']
@@ -2104,6 +2143,12 @@ def Fin_Attendanceview(request,mn,yr,id):
             events = Holiday.objects.filter(start_date__month=months,start_date__year=year,company_id=com.id)
             allmodules = Fin_Modules_List.objects.get(company_id = com.id)
             attendance = Fin_Attendances.objects.filter(employee = id,company = com.id,start_date__month=months,start_date__year =year)
+            for i in attendance:
+                attendance_counts =((i.end_date - i.start_date).days)+1
+                attendance_count += attendance_counts
+            for i in events:
+                events_count += ((i.end_date - i.start_date).days)+1
+            working_days = num_days - (events_count + attendance_count)
             emp =Employee.objects.get(id=id)
         
         elif loginn.User_Type == 'Staff' :
@@ -2111,9 +2156,15 @@ def Fin_Attendanceview(request,mn,yr,id):
             allmodules = Fin_Modules_List.objects.get(company_id = com.company_id)
             events = Holiday.objects.filter(start_date__month=months,start_date__year=year,company_id=com.company_id)
             attendance = Fin_Attendances.objects.filter(employee = id,company = com.company_id,start_date__month=months,start_date__year =year)
+            for i in attendance:
+                attendance_counts =((i.end_date - i.start_date).days)+1
+                attendance_count += attendance_counts
+            for i in events:
+                events_count += ((i.end_date - i.start_date).days)+1
+            working_days = num_days - (events_count + attendance_count)
             emp =Employee.objects.get(id=id)
 
-        return render(request,'company/Fin_AttendanceView.html',{'events':events,'month':month,'year':year,'attendance':attendance,'emp':emp,'month_name':month_name,'allmodules':allmodules})
+        return render(request,'company/Fin_AttendanceView.html',{'events':events,'month':month,'year':year,'attendance':attendance,'emp':emp,'month_name':month_name,'allmodules':allmodules,'events_count':events_count,'attendance_count':attendance_count,'working_days':working_days})
 
 
 def Fin_editAttendance(request,id,mn,yr,pk):

@@ -28,6 +28,13 @@
         position: relative;
     }
 </style>
+{% for i in messages %}
+<script>
+
+    alert(i);
+
+</script>
+{% endfor %}
 
 <div class="page-content">
     <div class="card radius-15">
@@ -863,6 +870,12 @@
                 console.log("success")
                 document.getElementById("modalCustomer").reset();
                 location.reload();
+                if (response.MSSSG) {
+                    alert(response.MSSSG)
+
+                }
+
+
             },
         });
     });
