@@ -73,6 +73,10 @@
             font-size: large;
         }
     }
+
+    #holidayList tr,#holidayList td{
+        text-align: center;
+    }
 </style>
 <div class="page-content ">
 
@@ -87,8 +91,8 @@
         <div id="holidayListDiv" class="col">
             <center>
                 <h3><a href="" id="holidayListLink"
-                        style="padding: 10px 20%;border-top-right-radius: 15px;border-top-left-radius: 15px;">Leave
-                        List</a></h3>
+                        style="padding: 10px 20%;border-top-right-radius: 15px;border-top-left-radius: 15px;">Attendance
+                        overview</a></h3>
             </center>
         </div>
     </div>
@@ -149,7 +153,7 @@
                             </div>
                         </div>
                         <center>
-                            <h3 class="card-title">ATTENDANCE OVERVIEW</h3>
+                            <h3 class="card-title" id="card-title"> OVERVIEW</h3>
                         </center>
                     </div>
                 </div>
@@ -228,7 +232,7 @@
                                                 <td style="text-transform: capitalize;">{{i.reason}}</td>
                                                 <td>{{i.start_date}}</td>
                                                 <td>{{i.end_date}}</td>
-                                                <td style="display: flex;align-content: space-between;">
+                                                <td style="display: flex;align-content: space-between;padding-left: 33%;">
 
                                                     <a
                                                         href="{% url 'Fin_deleteAttendance' id=i.id mn=month_name yr=year pk=emp.id %}"><i
@@ -244,10 +248,8 @@
                                                                 class="fa-solid fa-ellipsis-vertical"></i></button>
                                                         <div class="dropdown-menu"
                                                             style="background-color: black;border-radius: 2px;">
-                                                            <a class="dropdown-item" href="#"
-                                                                style="height: 40px; font-size: 15px; color: white"
-                                                                data-toggle="modal" data-target="#HistoryModal{{i.id}}"
-                                                                id="historyView{{i.id}}" onclick="att_history(this.id)">
+                                                            <a class="dropdown-item" href="{% url 'Fin_attendance_history' id=i.id mn=month_name yr=year %}"
+                                                                style="height: 40px; font-size: 15px; color: white">
                                                                 History
                                                             </a>
                                                             <a class="dropdown-item"
@@ -317,38 +319,7 @@
                                                             </div>
                                                         </div>
                                                     </div>
-                                                    <div class="modal fade" id="HistoryModal{{i.id}}" tabindex="-1"
-                                                        role="dialog" aria-labelledby="exampleModalLabel"
-                                                        aria-hidden="true">
-                                                        <div class="modal-dialog modal-dialog-centered" role="document">
-                                                            <div class="modal-content">
-                                                                <div class="modal-header">
-                                                                    <h5 class="modal-title" id="exampleModalLabel">
-                                                                        History</h5>
-                                                                    <button type="button" class="close"
-                                                                        data-dismiss="modal" aria-label="Close">
-                                                                        <span aria-hidden="true">&times;</span>
-                                                                    </button>
-                                                                </div>
-
-                                                                <div class="modal-body">
-                                                                    <table style="align-self: center;width: 100%;"
-                                                                        id="historyTable{{i.id}}"
-                                                                        class="table-bordered">
-                                                                        <tr>
-                                                                            <th>Sl.No.</th>
-                                                                            <th>Date</th>
-                                                                            <th>Action</th>
-                                                                            <th>Done By</th>
-                                                                        </tr>
-                                                                        <tr>
-
-                                                                        </tr>
-                                                                    </table>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
+                                                    
                                                 </td>
                                             </tr>
 
@@ -422,6 +393,8 @@
             document.getElementById('overviewBtn').style.backgroundColor = 'rgba(22,37,50,255)'
             document.getElementById('templateBtn').style.backgroundColor = 'transparent';
             $('#shareBtn').hide();
+            document.getElementById("card-title").textContent = 'OVERVIEW';
+
             $('#printBtn').hide();
             $('#pdfBtn').hide();
             $('#convertBtn').show();
@@ -438,6 +411,8 @@
             document.getElementById('templateBtn').style.backgroundColor = 'rgba(22,37,50,255)';
             $("#printBtn").attr("onclick", "printSection('whatToPrint')");
             $('#shareBtn').show();
+            document.getElementById("card-title").textContent = 'LEAVES';
+
             $('#printBtn').show();
             $('#pdfBtn').show();
             $('#editBtn').hide();
@@ -519,54 +494,7 @@
             });
         }
 
-        // Leave history
-
-        function att_history(id_str) {
-            id = id = id_str.split("historyView")[1];
-            console.log(id);
-
-            // Assume 'Some Product' is the title you want to check
-            $.ajax({
-                url: '{% url "Fin_attendance_history" %}',
-                type: 'GET',
-                data: {
-                    hid: id,
-                },
-
-                success: function (response) {
-                    if (response.data.length > 0) {
-                        var table = document.getElementById(`historyTable${id}`);
-
-                        while (table.rows.length > 1) {
-                            table.deleteRow(1);
-                        }
-
-                        // Populate the table with data
-                        for (var i = 0; i < response.data.length; i++) {
-                            var item = response.data[i];
-                            var row = table.insertRow(-1);
-
-                            var slNoCell = row.insertCell(0);
-                            var dateCell = row.insertCell(1);
-                            var actionCell = row.insertCell(2);
-                            var doneByCell = row.insertCell(3);
-
-                            slNoCell.innerHTML = i + 1; // Sl.No.
-                            dateCell.innerHTML = item.date; // Date
-                            actionCell.innerHTML = item.action; // Action
-                            doneByCell.innerHTML = item.first_name + " " + item.last_name; // Done By
-                        }
-                    }
-                },
-                error: function () {
-                    console.error('Error checking product existence.');
-                }
-            });
-
-        }
-
-
-
+        
 
 
         // -----------------------------------------------------------------------------------

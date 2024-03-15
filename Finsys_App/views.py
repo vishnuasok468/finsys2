@@ -1846,10 +1846,6 @@ def Fin_attendance_save(request):
         return redirect('Fin_Add_Attendance')
     return redirect('Fin_Add_Attendance')
 
-def chumma(request):
-    return render(request,'company/Fin_View_Invoice.html')
-
-
 
 def fin_employee_save_atndnce(request):
 
@@ -2506,22 +2502,25 @@ def Fin_deleteAttendance(request,id,mn,yr,pk):
     return redirect('Fin_Attendanceview',month_name,year,pk)
 
 
-def Fin_attendance_history(request):
-    hid = request.GET.get('hid')
-    
+def Fin_attendance_history(request,mn,yr,id):
     if 's_id' in request.session:
         s_id = request.session['s_id']
         log = Fin_Login_Details.objects.get(id = s_id)
         if log.User_Type == 'Staff':
             staff =Fin_Staff_Details.objects.get(Login_Id =log)
-            exists = Fin_Attendance_history.objects.filter(company = staff.company_id,attendance = hid)
-            data = [{'action': item.action, 'date': item.date, 'first_name': item.login_id.First_name, 'last_name': item.login_id.Last_name} for item in exists]
+            history = Fin_Attendance_history.objects.filter(company = staff.company_id,attendance = id)
+            allmodules = Fin_Modules_List.objects.get(company_id = staff.company_id)
+            att = Fin_Attendances.objects.get(id=id)
+            emp = Employee.objects.get(id = att.employee.id)
+
         if log.User_Type == 'Company':
             com = Fin_Company_Details.objects.get(Login_Id = log)
-            exists = Fin_Attendance_history.objects.filter(company = com.id,attendance = hid)
-            data = [{'action': item.action, 'date': item.date, 'first_name': item.login_id.First_name, 'last_name': item.login_id.Last_name} for item in exists]
+            history = Fin_Attendance_history.objects.filter(company = com.id,attendance = id)
+            allmodules = Fin_Modules_List.objects.get(company_id = com.id)
+            att = Fin_Attendances.objects.get(id=id)
+            emp = Employee.objects.get(id = att.employee.id)
 
-        return JsonResponse({'data': data})
+        return render(request,'company/Fin_Leave_History.html',{'history': history,'allmodules':allmodules,'att':att,'yr':yr,'mn':mn,'emp':emp})
     
 def Fin_addcommentstoleave(request,id,mn,yr,pk):
     month_name = mn
