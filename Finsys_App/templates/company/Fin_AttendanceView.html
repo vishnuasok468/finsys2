@@ -40,21 +40,34 @@
 
 <style>
     @media print {
+
         body {
             visibility: hidden;
             /* background-color: white; */
         }
+        .top-header,
+        #template {
+            visibility: hidden;
 
+        }
 
+        #cal_list a,
+        #headDing {
+            display: none;
+        }
 
         #holidayList,
-        #holidayList * {
+        #holidayList * ,
+        #card-title{
             visibility: visible;
             z-index: 99999;
-            margin-top: -200px;
+            margin-top: -70px;
             color: black;
             font-size: 30px;
             width: 100%;
+        }
+        #card-title{
+            font-size: 35px;
         }
 
         #holidayList tr td:last-child,
@@ -74,7 +87,8 @@
         }
     }
 
-    #holidayList tr,#holidayList td{
+    #holidayList tr,
+    #holidayList td {
         text-align: center;
     }
 </style>
@@ -92,7 +106,7 @@
             <center>
                 <h3><a href="" id="holidayListLink"
                         style="padding: 10px 20%;border-top-right-radius: 15px;border-top-left-radius: 15px;">Attendance
-                        overview</a></h3>
+                        List</a></h3>
             </center>
         </div>
     </div>
@@ -232,7 +246,8 @@
                                                 <td style="text-transform: capitalize;">{{i.reason}}</td>
                                                 <td>{{i.start_date}}</td>
                                                 <td>{{i.end_date}}</td>
-                                                <td style="display: flex;align-content: space-between;padding-left: 33%;">
+                                                <td
+                                                    style="display: flex;align-content: space-between;padding-left: 33%;">
 
                                                     <a
                                                         href="{% url 'Fin_deleteAttendance' id=i.id mn=month_name yr=year pk=emp.id %}"><i
@@ -248,7 +263,8 @@
                                                                 class="fa-solid fa-ellipsis-vertical"></i></button>
                                                         <div class="dropdown-menu"
                                                             style="background-color: black;border-radius: 2px;">
-                                                            <a class="dropdown-item" href="{% url 'Fin_attendance_history' id=i.id mn=month_name yr=year %}"
+                                                            <a class="dropdown-item"
+                                                                href="{% url 'Fin_attendance_history' id=i.id mn=month_name yr=year %}"
                                                                 style="height: 40px; font-size: 15px; color: white">
                                                                 History
                                                             </a>
@@ -319,7 +335,7 @@
                                                             </div>
                                                         </div>
                                                     </div>
-                                                    
+
                                                 </td>
                                             </tr>
 
@@ -494,7 +510,7 @@
             });
         }
 
-        
+
 
 
         // -----------------------------------------------------------------------------------
@@ -633,69 +649,102 @@
         // calendar (ignore the error - code working fine)
 
         document.addEventListener('DOMContentLoaded', function () {
+            const dateRange = [];
+            const dateRanges = [];
+            const holis = [];
+
+            {% for i in attendance %}
+            {
+                const start = '{{i.start_date}}';
+                const end = '{{i.end_date}}';
+                const allDateRanges = getDatesInRange(start, end);
+                dateRange.push(allDateRanges);
+            }
+            {% endfor %}
+            {% for i in events %}
+            {
+                const start_d = '{{i.start_date}}';
+                const end_d = '{{i.end_date}}';
+                const holi = '{{i.holiday_name}}'
+                const allDateRangess = getDatesInRange(start_d, end_d);
+                dateRanges.push(allDateRangess);
+                holis.push(holi);
+
+            }
+            {% endfor %}
+
+            const eventss = [];
+
+            // Loop through each date in the dateRange
+            for (let i = 0; i < dateRange.length; i++) {
+                const dr = dateRange[i]
+                for (let j = 0; j < dr.length; j++) {
+
+                    const event = {
+                        title: 'leave',
+                        start: dr[j], // Use the current date from the array
+                        allDay: true, // Set to true for all-day events
+                        color: 'red',
+                    };
+                    eventss.push(event); // Add the event to the events array
+                }
+            }
+
+            for (let i = 0; i < dateRanges.length; i++) {
+                const dr = dateRanges[i]
+                const holid = holis[i]
+                for (let j = 0; j < dr.length; j++) {
+
+                    const event = {
+                        title: holid,
+                        start: dr[j], // Use the current date from the array
+                        allDay: true, // Set to true for all-day events
+                    };
+                    eventss.push(event); // Add the event to the events array
+                }
+            }
             var calendarEl = document.getElementById('calendar');
             var calendar = new FullCalendar.Calendar(calendarEl, {
                 initialView: 'dayGridMonth',
-                events: [
-                    {% for i in events %}
-            {
-
-                    title: '{{i.holiday_name}}',
-                    start: '{{i.start_date|date:"c"}}',
-                    // Set allDay to true for one-day events
-                    allDay: true,
-                    // Extend the end date by one day
-                    end: new Date('{{i.end_date|date:"c"}}').getTime() + (1 * 24 * 60 * 60 * 1000),
 
 
+                events: eventss,
+
+                eventContent: function (arg) {
+                    var eventElement = document.createElement('div');
+                    eventElement.innerHTML = arg.event.title;
+                    eventElement.style.width = '120px'; // Adjust width as needed
+                    eventElement.style.height = '30px'; // Adjust height as needed
+                    eventElement.style.fontSize = '20px'; // Adjust font size as needed
+                    eventElement.style.textTransform = 'capitalize'; // Capitalize the text
+                    eventElement.style.marginLeft = '10px'; // Margin left
+                    return { domNodes: [eventElement] };
                 },
-                {% endfor %}
-
-            {% for i in attendance %}
-        {
-
-            title: '{{i.reason}}',
-                start: '{{i.start_date|date:"c"}}',
-                    // Set allDay to true for one-day events
-                    allDay: true,
-                        // Extend the end date by one day
-                        end: new Date('{{i.end_date|date:"c"}}').getTime() + (1 * 24 * 60 * 60 * 1000),
-                            color : 'red',
-
-
-            },
-        {% endfor %}
-        ],
-        eventContent: function (arg) {
-            // Customize the appearance of each event
-            var eventElement = document.createElement('div');
-            eventElement.innerHTML = arg.event.title;
-
-            // Increase width and height
-            eventElement.style.width = '120px'; // Adjust width as needed
-            eventElement.style.height = '30px'; // Adjust height as needed
-
-            // Add other style modifications as needed
-            eventElement.style.fontSize = '20px'; // Adjust font size as needed
-            eventElement.style.textTransform = 'capitalize'; // Capitalize the text
-            eventElement.style.marginLeft = '10px'; // Margin left
-
-            return { domNodes: [eventElement] };
-        },
-        
-    });
-
-        // Specify the year and month you want to open the calendar to
-        var yearToOpen = {{ year }};
+            });
+        var yearToOpen = {{ year}};
         var monthToOpen = {{ month }}; // (months are 0-indexed in JavaScript)
-
-        // Use gotoDate to open the calendar to the specified year and month
         calendar.gotoDate(new Date(yearToOpen, monthToOpen));
-
-
         calendar.render();
 });
 
+
+        function getDatesInRange(startDate, endDate) {
+            // Parse the input strings into Date objects
+            const startDateObj = new Date(startDate);
+            const endDateObj = new Date(endDate);
+
+            const dates = []; // Array to store the Date objects
+
+            // Create a copy of the start date
+            let currentDate = new Date(startDateObj);
+
+            while (currentDate <= endDateObj) {
+                dates.push(new Date(currentDate)); // Push each Date object to the array
+                currentDate.setDate(currentDate.getDate() + 1); // Increment the date by one day
+            }
+
+            return dates; // Return the array of dates
+        }
 
         // ----------------------------------------------------------------------------------
         // hide or show calendar
