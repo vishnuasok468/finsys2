@@ -39,12 +39,33 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
 
 <style>
+    body::-webkit-scrollbar {
+        display: none !important;
+    }
+
+    #calendar {
+        height: 437px;
+        margin-bottom: 0px;
+    }
+
+    .page-content {
+        margin: 0;
+        padding: 0;
+    }
+
+    .page-content-wrapper {
+        padding: 0;
+        margin: 0;
+        overflow: hidden;
+    }
+
     @media print {
 
         body {
             visibility: hidden;
             /* background-color: white; */
         }
+
         .top-header,
         #template {
             visibility: hidden;
@@ -57,8 +78,8 @@
         }
 
         #holidayList,
-        #holidayList * ,
-        #card-title{
+        #holidayList *,
+        #card-title {
             visibility: visible;
             z-index: 99999;
             margin-top: -70px;
@@ -66,7 +87,8 @@
             font-size: 30px;
             width: 100%;
         }
-        #card-title{
+
+        #card-title {
             font-size: 35px;
         }
 
@@ -92,7 +114,7 @@
         text-align: center;
     }
 </style>
-<div class="page-content ">
+<div class="page-content">
 
     <div class="row radius-15">
         <div id="calendarDiv" class="col">
@@ -713,15 +735,16 @@
                 eventContent: function (arg) {
                     var eventElement = document.createElement('div');
                     eventElement.innerHTML = arg.event.title;
-                    eventElement.style.width = '120px'; // Adjust width as needed
-                    eventElement.style.height = '30px'; // Adjust height as needed
-                    eventElement.style.fontSize = '20px'; // Adjust font size as needed
+                    eventElement.style.width = '1px'; // Adjust width as needed
+                    eventElement.style.height = '20px'; // Adjust height as needed
+                    eventElement.style.fontSize = '10px'; // Adjust font size as needed
                     eventElement.style.textTransform = 'capitalize'; // Capitalize the text
                     eventElement.style.marginLeft = '10px'; // Margin left
                     return { domNodes: [eventElement] };
                 },
             });
-        var yearToOpen = {{ year}};
+            var yearToOpen = {{ year }
+        };
         var monthToOpen = {{ month }}; // (months are 0-indexed in JavaScript)
         calendar.gotoDate(new Date(yearToOpen, monthToOpen));
         calendar.render();
