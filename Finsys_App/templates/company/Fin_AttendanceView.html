@@ -545,7 +545,6 @@
                 'September', 'October', 'November', 'December'
             ];
 
-            // Ensure the number is within a valid month range
             if (number >= 0 && number <= 12) {
                 return months[number];
             } else {
@@ -553,11 +552,9 @@
             }
         }
 
-        // Get the element with id "monthName"
         const monthNameElement = document.getElementById('monthName');
         console.log(monthNameElement);
 
-        // Ensure the element exists
         if (monthNameElement) {
             const monthNumber = parseInt(monthNameElement.textContent, 10);
 
@@ -576,18 +573,6 @@
 
 
 
-        /*function PrintTable() {
-    
-            var printContents = document.getElementById("holidayList").innerHTML;
-            var $printerDiv = $('<div class="printContainer hidden"></div>'); // create the div that will contain the stuff to be printed
-            $printerDiv.html(printContents); // add the content to be printed
-            $('body').append($printerDiv).addClass("printingContent"); // add the div to body, and make the body aware of printing (we apply a set of css styles to the body to hide its contents)
-    
-            window.print(); // call print
-            $printerDiv.remove(); // remove the div
-            $('body').removeClass("printingContent");
-    
-        }*/
 
 
         function printSection() {
